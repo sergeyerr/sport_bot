@@ -1,2 +1,2 @@
-# Katapulta
-*A helper bot that enables people to do sports together.*
+# perm_sport_bot
+*Бот в telegram для поиска спортивных товарищей*
