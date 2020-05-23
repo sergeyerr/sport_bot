@@ -1,4 +1,5 @@
-import sys
-
-print 'Number of arguments:', len(sys.argv), 'arguments.'
-print 'Argument List 1:', str(sys.argv)
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("echo")
+args = parser.parse_args()
+print(args.echo,1)
