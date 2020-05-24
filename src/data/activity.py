@@ -1,5 +1,5 @@
 from peewee import CharField, IntegerField, FloatField, Model
-from data import database
+from data.db import database
 
 
 class Activity(Model):

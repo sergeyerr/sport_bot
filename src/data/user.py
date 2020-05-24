@@ -1,5 +1,5 @@
 from peewee import Model, CharField, IntegerField
-from data import database
+from data.db import database
 
 
 class User(Model):
