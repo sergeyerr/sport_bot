@@ -5,7 +5,7 @@ import telebot
 logger = telebot.logger
 telebot.logger.setLevel(logging.INFO)
 
-token_path = "resources/telegram_bot_token.txt"
+token_path = "../resources/telegram_bot_token"
 
 frontend = None
 
