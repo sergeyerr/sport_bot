@@ -1,35 +1,33 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 from frontend.setup import frontend
 
-# Нужно записать сюда все кнопки главного меню
-markup = InlineKeyboardMarkup(row_width=3)
 
-@frontend.message_handler(func = lambda message: True)
-def mainMenu(message):
+def main_menu():
+    markup = InlineKeyboardMarkup(row_width=3)
     
     activitiesNear_but = InlineKeyboardButton(
     text ="Активности поблизости",
-    callback_data ="activitiesNear")
+    callback_data ="mainmenu_activities_near")
 
     findBuddies_but = InlineKeyboardButton(
     text ="Найти приятелей",
-    callback_data ="findBuddies")
+    callback_data ="mainmenu_find_buddies")
 
     activities_but = InlineKeyboardButton(
     text ="Мои активности",
-    callback_data ="activities")
+    callback_data ="mainmenu_activities")
 
     buddies_but = InlineKeyboardButton(
     text ="Мои приятели",
-    callback_data ="buddies")
+    callback_data ="mainmenu_buddies")
 
     settings_but = InlineKeyboardButton(
     text ="Настройки аккаунта",
-    callback_data ="settings")
+    callback_data ="mainmenu_settings")
 
     stats_but = InlineKeyboardButton(
     text ="Статистика", 
-    callback_data ="stats")
+    callback_data ="mainmenu_stats")
 
     markup.add(
     activitiesNear_but,findBuddies_but)
@@ -40,64 +38,53 @@ def mainMenu(message):
     markup.add(
     settings_but, stats_but)
 
-    frontend.send_message(
-    message.chat.id,"Меню", reply_markup=markup)
+    return markup
 
-
-# Для каждой кнопки подготовить заготовку обработчика.
 
 # Обработчик кнопки Активности поблизости
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("activitiesNear"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_activities"))
+def activities_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Активности поблизости")
+        call.message.chat.id,
+        "Активности поблизости")
 
 # Обработчик кнопки Поиск приятелей
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("findBuddies"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_find_buddies"))
+def find_buddies_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Поиск приятелей")
+        call.message.chat.id,
+        "Поиск приятелей")
 
 # Обработчик кнопки Активности
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("activities"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_activities"))
+def activities_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Активности")
+        call.message.chat.id,
+        "Активности")
 
 # Обработчик кнопки Мои приятели
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("buddies"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_buddies"))
+def buddies_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Мои приятели")
+        call.message.chat.id,
+        "Мои приятели")
 
 # Обработчик кнопки Настройки аккаунта
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("settings"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_settings"))
+def settings_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Настройки аккаунта")
+        call.message.chat.id,
+        "Настройки аккаунта")
 
 # Обработчик кнопки Статистика
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("stats"))
-def activitiesNear_but_pressed(call): 
-    
+    lambda call: call.data.startswith("mainmenu_stats"))
+def stats_button_pressed(call): 
     frontend.send_message(
-    call.message.chat.id,
-    "Статистика")
-
-# СЛЕДИТЬ ЗА ТЕМ, ЧТОБЫ СТРОКИ НЕ БЫЛИ ДЛИННЕЕ 79 СИМВОЛОВ!
+        call.message.chat.id,
+        "Статистика")
