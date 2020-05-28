@@ -2,85 +2,111 @@ from telebot import types
 from frontend.setup import frontend
 from bot_core import bot
 
-# Этот файл из прототипа рабочий,
-# но имеет некоторые проблемы.
-# 1. Здесь производятся обращение напрямую
-#    моделям ORM. Это противоречит идее
-#    архитектора (который только и может, что писать длинные комментарии, которые никто не читает).
-#    Требуется убрать все обращения напрямую к моделям ORM из этого
-#    файла и создать для них функции в файле bot_core/bot.py
-# 2. Требуется переписать этот код, чтобы он использовал
-#    InlineKeyboardMarkup из telebot.types.
-# 3. И кто такой этот new_users?? Если не нужен, удали.
+from frontend.ui_components.main_menu import main_menu
+from data.user import User
 
 
-new_users = {}
+new_user = User()
 
 
 @frontend.message_handler(commands=['start'])
-def __start_command(message):
+def start_command(message):
     if not bot.user_exists(message.chat.id):
         launch_scenario(message)
     else:
-        __finalize()
+        finalize(message)
 
 
 def launch_scenario(message):
     user_id = message.chat.id
-    print(message)
+
     if message.from_user.last_name is None:
         message.from_user.last_name = ""
     user_name = message.from_user.first_name + \
-        ' ' + \
-        message.from_user.last_name
-    chat_link = f'@{message.chat.username}'
-    new_users[user_id] = User(id=user_id, name=user_name, link=chat_link)
+                ' ' + message.from_user.last_name
+
+    new_user.id = user_id
+    new_user.name = user_name
+    new_user.username = f'@{message.chat.username}'
+
     frontend.send_message(
         message.chat.id,
-        'Здравствуйте! Пожалуйста, введите Ваш возраст.')
-    frontend.register_next_step_handler(message, __age_step)
+        'Здравствуйте! Пожалуйста, введите Ваш возраст')
+    frontend.register_next_step_handler(message, age_step)
 
 
-def __age_step(message):
-    user_id = message.chat.id
+def age_step(message):
     age = message.text
+
     if not age.isdigit():
         msg = frontend.reply_to(
             message,
             'Возраст должен быть числом. Пожалуйста, повторите попытку')
-        frontend.register_next_step_handler(msg, __age_step)
+        frontend.register_next_step_handler(msg, age_step)
         return
-    user = new_users[user_id]
-    user.age = age
-    new_users[user_id] = user
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    new_user.age = int(age)
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add('Мужской', 'Женский')
+
     frontend.send_message(
         message.chat.id, 'Введите Ваш пол', reply_markup=markup)
-    frontend.register_next_step_handler(message, __gender_step)
+    frontend.register_next_step_handler(message, gender_step)
 
 
-def __gender_step(message):
-    user_id = message.from_user.id
+def gender_step(message):
     gender = message.text
-    user = new_users[user_id]
+
     if gender in ('Мужской', 'Женский'):
-        user.gender = gender
-        user.save(force_insert=True)
-        __finalize()
+        new_user.gender = gender
         frontend.send_message(
-            user_id, f'Отлично, {user.name},' +
-            '\nВозраст: {str(user.age)}' +
-            '\nПол: {user.gender}')
+            message.chat.id,
+            'Введите город проживания', reply_markup=types.ReplyKeyboardRemove())
+        frontend.register_next_step_handler(message, city_step)
     else:
         msg = frontend.reply_to(
             message,
-            'Кнопка не была нажата. Нажмите кнопку, пожалуйста.')
-        frontend.register_next_step_handler(msg, __gender_step)
+            'Кнопка не была нажата. Нажмите кнопку, пожалуйста')
+        frontend.register_next_step_handler(msg, gender_step)
         return
 
 
-def __finalize():
-    """ Высылает пользователю главное меню """
+def city_step(message):
+    city = message.text
 
+    new_user.city = city
+
+    frontend.send_message(
+        message.chat.id,
+        'Отправьте предпочтительное место для '
+        'занятий физической культурой')
+    frontend.register_next_step_handler(message, coord_step)
+
+
+def coord_step(message):
+    coord = message.location
+
+    if not (coord is None):
+        new_user.x = message.location.longitude
+        new_user.y = message.location.latitude
+        bot.save_user(new_user)
+        finalize(message)
+
+        frontend.send_message(
+            message.from_user.id, f'Отлично, {new_user.name}' +
+                                  f'\nВозраст: {str(new_user.age)}' +
+                                  f'\nПол: {new_user.gender}' +
+                                  f'\nГород: {new_user.city}')
+    else:
+        msg = frontend.reply_to(
+            message,
+            'Пожалуйста, отправьте геопозицию')
+        frontend.register_next_step_handler(msg, coord_step)
+        return
+
+
+def finalize(message):
+    """ Высылает пользователю главное меню """
+    frontend.send_message(message.chat.id, "Меню", reply_markup=main_menu())
     pass

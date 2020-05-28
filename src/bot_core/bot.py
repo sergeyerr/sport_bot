@@ -14,4 +14,12 @@ def user_exists(user_id):
 
 def get_activities_by(user_id):
     return Activity.select().where(Activity.user_id == user_id)
-    
+
+
+def save_user(new_user):
+    fields = [User.id, User.name, User.username, User.age,
+              User.gender, User.city, User.x, User.y]
+    data = (new_user.id, new_user.name, new_user.username, new_user.age,
+            new_user.gender, new_user.city, new_user.x, new_user.y)
+    query = User.insert(data, fields=fields).execute()
+    return query
