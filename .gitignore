@@ -6,9 +6,8 @@ __pycache__
 .vscode
 *.db
 
-resources
+*.db
 *bot*token*
-!/resources/images/noavatar.png
 
 sandbox
 *launch_sandbox*
