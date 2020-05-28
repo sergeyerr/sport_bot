@@ -6,7 +6,7 @@ __pycache__
 .vscode
 *.db
 
-resources
+*.db
 *bot*token*
 
 sandbox
