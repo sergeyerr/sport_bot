@@ -8,6 +8,7 @@ __pycache__
 
 resources
 *bot*token*
+!/resources/images/noavatar.png
 
 sandbox
 *launch_sandbox*
