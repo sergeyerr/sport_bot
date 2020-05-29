@@ -7,6 +7,8 @@ telebot.logger.setLevel(logging.INFO)
 
 token_path = "resources/telegram_bot_token"
 
+frontend = telebot.TeleBot("")
+
 if __name__ == "__main__":
     try:
         with open(token_path) as f:
