@@ -1,4 +1,4 @@
-from peewee import CharField, IntegerField, Model, DoubleField, DateTimeField, CompositeKey
+from peewee import IntegerField, Model, CompositeKey
 from data.db import database
 
 
@@ -8,4 +8,4 @@ class Activities(Model):
 
     class Meta:
         database = database
-        primary_key = CompositeKey('activity_id','user_id')
+        primary_key = CompositeKey('activity_id', 'user_id')
