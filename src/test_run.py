@@ -1,5 +1,3 @@
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("echo")
-args = parser.parse_args()
-print(args.echo, 1)
+from frontend.setup import frontend
+from frontend.ui_components import *
+from data import *

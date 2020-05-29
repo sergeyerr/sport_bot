@@ -5,9 +5,7 @@ import telebot
 logger = telebot.logger
 telebot.logger.setLevel(logging.INFO)
 
-token_path = "../resources/telegram_bot_token"
-
-frontend = None
+token_path = "resources/telegram_bot_token"
 
 try:
     with open(token_path) as f:
