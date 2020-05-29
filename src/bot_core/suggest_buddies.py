@@ -11,7 +11,14 @@ def suggest_buddies(user_id):
     our_buddy = User.get(User.id == user_id)
     our_location = (our_buddy.x, our_buddy.y)
 
-    other_buddies_sorted = sorted(other_buddies, key=lambda buddy: distance(our_location, (buddy.x, buddy.y)).km)
-    other_buddies_filtered = list(filter(lambda buddy: distance(our_location, (buddy.x, buddy.y)).km <= eps,
-                                         other_buddies_sorted))
+    other_buddies_sorted = sorted(
+        other_buddies,
+        key=lambda buddy: distance(our_location, (buddy.x, buddy.y)).km)
+
+    other_buddies_filtered = filter(
+        lambda buddy: distance(our_location, (buddy.x, buddy.y)).km <= eps,
+        other_buddies_sorted)
+
+    other_buddies_filtered = list(other_buddies_filtered)
+
     return other_buddies_filtered

@@ -14,4 +14,3 @@ def user_exists(user_id):
 
 def get_activities_by(user_id):
     return Activity.select().where(Activity.user_id == user_id)
-    

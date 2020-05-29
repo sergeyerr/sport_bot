@@ -1,14 +1,14 @@
-from peewee import CharField, IntegerField, Model, DoubleField, DateTimeField
+import peewee as pw
 from data.db import database
 
 
-class Activity(Model):
-    id = IntegerField(primary_key=True)
-    type = CharField()
-    distance = DoubleField()
-    date = DateTimeField()
-    x = DoubleField()
-    y = DoubleField()
+class Activity(pw.Model):
+    id = pw.IntegerField(primary_key=True)
+    type = pw.CharField()
+    distance = pw.DoubleField()
+    date = pw.DateTimeField()
+    x = pw.DoubleField()
+    y = pw.DoubleField()
 
     class Meta:
         database = database
