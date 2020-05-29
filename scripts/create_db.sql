@@ -1,8 +1,9 @@
 CREATE TABLE User (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
-  login TEXT NOT NULL,
+  username TEXT NOT NULL,
   age INT NOT NULL,
+  gender TEXT NOT NULL,
   city TEXT NOT NULL,
   x REAL NOT NULL,
   y REAL NOT NULL
