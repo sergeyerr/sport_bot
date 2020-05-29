@@ -5,7 +5,7 @@ from data.db import database
 class User(pw.Model):
     id = pw.IntegerField(primary_key=True)
     name = pw.CharField()
-    login = pw.CharField()
+    username = pw.CharField()
     age = pw.IntegerField()
     city = pw.CharField()
     x = pw.DoubleField()
