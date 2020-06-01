@@ -2,7 +2,7 @@ from telebot import types
 from frontend.setup import frontend
 from bot_core import bot
 
-from frontend.ui_components.main_menu import main_menu
+from frontend.ui_components import main_menu
 from data.user import User
 
 
@@ -22,8 +22,9 @@ def launch_scenario(message):
 
     if message.from_user.last_name is None:
         message.from_user.last_name = ""
-    user_name = message.from_user.first_name + \
-                ' ' + message.from_user.last_name
+    user_name = \
+        message.from_user.first_name + \
+        ' ' + message.from_user.last_name
 
     new_user.id = user_id
     new_user.name = user_name
@@ -47,7 +48,9 @@ def age_step(message):
 
     new_user.age = int(age)
 
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        one_time_keyboard=True)
     markup.add('Мужской', 'Женский')
 
     frontend.send_message(
@@ -62,7 +65,8 @@ def gender_step(message):
         new_user.gender = gender
         frontend.send_message(
             message.chat.id,
-            'Введите город проживания', reply_markup=types.ReplyKeyboardRemove())
+            'Введите город проживания',
+            reply_markup=types.ReplyKeyboardRemove())
         frontend.register_next_step_handler(message, city_step)
     else:
         msg = frontend.reply_to(
@@ -108,5 +112,7 @@ def coord_step(message):
 
 def finalize(message):
     """ Высылает пользователю главное меню """
-    frontend.send_message(message.chat.id, "Меню", reply_markup=main_menu())
+    frontend.send_message(
+        message.chat.id, "Меню",
+        reply_markup=main_menu.create_message())
     pass
