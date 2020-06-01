@@ -16,8 +16,9 @@ users = list(map(lambda x: {
 USERS_PER_CARD = 3
 
 
-def get_markup(users):
-    return __recreate_markup(users, 0)
+def create_message(users):
+    pointer = 0
+    return (__recreate_markup(users, pointer), __message_text(users, pointer))
 
 
 def __parse_switch_call_data(users, call):
