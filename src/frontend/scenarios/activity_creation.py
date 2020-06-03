@@ -1,12 +1,10 @@
-import telebot
 from telebot import types
-# from frontend.setup import frontend
+from frontend.setup import frontend
 from data.activity import Activity
 from bot_core import bot
 from datetime import datetime
 from frontend.ui_components import main_menu
 
-frontend = telebot.TeleBot('1209584769:AAFqOGx-Vl28QDG_rFHhR2PosOO3DxSHmnk')
 
 new_activity = Activity()
 
@@ -104,7 +102,7 @@ def coord_step(message):
 # Проверка на дату и время
 def is_date_time(date):
     try:
-        datetime.strptime(date, '%d/%m/%Y %I:%M')
+        datetime.strptime(date, '%d/%m/%Y %H:%M')
         return True
     except:
         return False
@@ -115,7 +113,7 @@ def time_step(message):
     date = message.text
 
     if is_date_time(date):
-        new_activity.date = datetime.strptime(date, '%d/%m/%Y %I:%M')
+        new_activity.date = datetime.strptime(date, '%d/%m/%Y %H:%M')
 
         bot.save_activity(new_activity)
         finalize(message)
@@ -148,6 +146,3 @@ def finalize(message):
         message.chat.id,
         text='Мероприятие успешно добавлено!',
         reply_markup=markup)
-
-
-frontend.polling()
