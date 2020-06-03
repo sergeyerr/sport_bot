@@ -3,6 +3,8 @@ from telebot import types
 # from frontend.setup import frontend
 from data.activity import Activity
 from bot_core import bot
+from datetime import datetime
+from frontend.ui_components import main_menu
 
 frontend = telebot.TeleBot('1209584769:AAFqOGx-Vl28QDG_rFHhR2PosOO3DxSHmnk')
 
@@ -70,7 +72,7 @@ def distance_step(message):
         frontend.send_message(
             message.chat.id,
             'Отправьте место проведения мероприятия')
-        frontend.register_next_step_handler(message, distance_step)
+        frontend.register_next_step_handler(message, coord_step)
     else:
         msg = frontend.reply_to(
             message,
@@ -99,13 +101,53 @@ def coord_step(message):
         return
 
 
+# Проверка на дату и время
+def is_date_time(date):
+    try:
+        datetime.strptime(date, '%d/%m/%Y %I:%M')
+        return True
+    except:
+        return False
+
+
+# Обработка указанной даты и времени
 def time_step(message):
-    pass
+    date = message.text
+
+    if is_date_time(date):
+        new_activity.date = datetime.strptime(date, '%d/%m/%Y %I:%M')
+
+        bot.save_activity(new_activity)
+        finalize(message)
+    else:
+        msg = frontend.reply_to(
+            message,
+            'Пожалуйста, введите дату и время '
+            'в формате ДД/ММ/ГГГГ ЧЧ:ММ')
+        frontend.register_next_step_handler(msg, time_step)
+        return
 
 
-# Если все ок, высылает главное меню
+# Callback на нажатие кнопки
+@frontend.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    if call.message:
+        if call.data == 'back':
+            frontend.send_message(
+                call.message.chat.id, "Меню",
+                reply_markup=main_menu.create_message())
+
+
+# Если все ок, высылает уведомление
 def finalize(message):
-    pass
+    markup = types.InlineKeyboardMarkup()
+    item = types.InlineKeyboardButton("Назад", callback_data='back')
+    markup.add(item)
+
+    frontend.send_message(
+        message.chat.id,
+        text='Мероприятие успешно добавлено!',
+        reply_markup=markup)
 
 
 frontend.polling()
