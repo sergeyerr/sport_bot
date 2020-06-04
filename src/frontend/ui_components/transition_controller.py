@@ -1,5 +1,9 @@
-from frontend.setup import frontend
+from telebot import logger
 
+from frontend.setup import frontend
+from frontend.ui_components import stats_display
+from frontend.ui_components import main_menu
+from bot_core import bot
 
 def use():
     """
@@ -9,6 +13,8 @@ def use():
     """
     pass
 
+
+# Обработчики клавиш главного меню
 
 # Обработчик кнопки Активности поблизости
 @frontend.callback_query_handler(
@@ -64,16 +70,18 @@ def __settings_button_pressed(call):
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_stats"))
 def __stats_button_pressed(call):
-    frontend.send_message(
-        call.message.chat.id,
-        "Статистика")
+    u = bot.get_user_by_id(call.message.chat.id)
+    t, m, p = stats_display.create_message(u)
+    frontend.send_photo(
+        call.message.chat.id, p, t, reply_markup=m)
     frontend.answer_callback_query(call.id)
 
 
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("stats_display_back"))
-def __user_viewer_back_button_pressed(call):
-    frontend.send_message(
-        call.message.chat.id,
-        "Выйти из просмотрщика статистики")
-    frontend.answer_callback_query(call.id)
+# Обработчики просмотрщика активностей
+
+# @frontend.callback_query_handler(
+#     lambda call: call.data.startswith("stats_display_back"))
+# def __user_viewer_back_button_pressed(call):
+#     t, m = main_menu.create_message()
+#     logger.info(1, "Back button on stats_display was pressed")
+#     frontend.answer_callback_query(call.id)

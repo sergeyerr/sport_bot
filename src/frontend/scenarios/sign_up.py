@@ -89,17 +89,25 @@ def coord_step(message):
     if not (coord is None):
         new_user.x = message.location.longitude
         new_user.y = message.location.latitude
-        bot.save_user(new_user)
-        finalize(message)
 
-        frontend.send_message(
+        bot.create_user(new_user)
+
+        m = frontend.send_message(
             message.from_user.id, f'Отлично, {new_user.name}' +
                                   f'\nВозраст: {str(new_user.age)}' +
                                   f'\nПол: {new_user.gender}' +
                                   f'\nГород: {new_user.city}')
+        finalize(m)
+
     else:
         msg = frontend.reply_to(
             message,
             'Пожалуйста, отправьте геопозицию')
         frontend.register_next_step_handler(msg, coord_step)
         return
+
+
+def finalize(message):
+    t, m = main_menu.create_message()
+    frontend.edit_message_text(
+        t, message.chat.id, message.message_id, reply_markup=m)

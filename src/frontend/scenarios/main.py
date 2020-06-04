@@ -1,10 +1,8 @@
+from telebot import logger 
 from frontend.setup import frontend
 from frontend.scenarios import sign_up
 from frontend.ui_components import main_menu
-from frontend.ui_components import stats_display
-from frontend.ui_components import user_viewer
 from frontend.ui_components import transition_controller
-from frontend import util
 from bot_core import bot
 
 transition_controller.use()
@@ -20,8 +18,9 @@ def use():
 
 
 @frontend.message_handler(commands=['menu', 'start'])
-def route_menu(message):
+def route(message):
     if not bot.user_exists(message.chat.id):
+        logger.info("Launching sign_up scenario from main.py")
         sign_up.launch(message)
     else:
         t, m = main_menu.create_message()
