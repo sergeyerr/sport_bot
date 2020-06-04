@@ -23,3 +23,12 @@ def save_user(new_user):
             new_user.gender, new_user.city, new_user.x, new_user.y)
     query = User.insert(data, fields=fields).execute()
     return query
+
+
+def save_activity(new_activity):
+    fields = [Activity.type, Activity.distance, Activity.date,
+              Activity.x, Activity.y]
+    data = (new_activity.type, new_activity.distance,
+            new_activity.date, new_activity.x, new_activity.y)
+    query = Activity.insert(data, fields=fields).execute()
+    return query
