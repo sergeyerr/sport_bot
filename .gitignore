@@ -10,3 +10,5 @@ __pycache__
 
 sandbox
 *launch_sandbox*
+
+venv/
