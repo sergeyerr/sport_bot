@@ -1,7 +1,7 @@
 import math
 
 from telebot import types
-from frontend.frontend import frontend
+from frontend.setup import frontend
 
 users = list(map(lambda x: {
     "id": x,
@@ -16,9 +16,8 @@ users = list(map(lambda x: {
 USERS_PER_CARD = 3
 
 
-def create_message(users):
-    pointer = 0
-    return (__recreate_markup(users, pointer), __message_text(users, pointer))
+def create_message():
+    return (__message_text(users, 0), __recreate_markup(users, 0))
 
 
 def __parse_switch_call_data(users, call):
@@ -64,7 +63,7 @@ def __recreate_markup(users, pointer):
         text = f"{uinfo}, {udist}, {activities}"
         markup.add(types.InlineKeyboardButton(
             text=text,
-            callback_data=f'userviewer_select_{offset + index}'))
+            callback_data=f'userviewer_select_{users[offset + index]["id"]}'))
         index += 1
 
     return __append_nav_buttons(markup, pointer)

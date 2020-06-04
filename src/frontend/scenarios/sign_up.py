@@ -52,8 +52,7 @@ def age_step(message):
     new_user.age = int(age)
 
     markup = types.ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        one_time_keyboard=True)
+        resize_keyboard=True, one_time_keyboard=True)
     markup.add('Мужской', 'Женский')
 
     frontend.send_message(

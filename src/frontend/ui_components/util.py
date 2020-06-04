@@ -12,5 +12,5 @@ def get_user_picture(frontend, message):
     # Случай, когда нет аватарки (мб выдавать месс, мол, поставьте аву, пж?)
     except IndexError:
         # Пока будем выдавать знак вопроса с локалки
-        file_id = open("../resources/images/noavatar.png", 'rb')
+        file_id = open("resources/images/noavatar.jpg", 'rb')
     return file_id
