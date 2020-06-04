@@ -1,14 +1,14 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Пример словаря
-# _user = {
-#     'name': 'Алексей',
-#     'age': '21',
-#     'city':'Perm',
-#     'activitiesFinished':'5',
-#     'favouriteSport':'Пиво',
-#     'cityRating': '2'
-# }
+_user = {
+    'name': 'Алексей',
+    'age': '21',
+    'city': 'Perm',
+    'activitiesFinished': '5',
+    'favouriteSport': 'Пиво',
+    'cityRating': '2'
+}
 
 
 def create_message(user_dict):
@@ -29,13 +29,3 @@ def create_message(user_dict):
 
     # Кортеж из всех данных для сообщения
     return (message_text, markup)
-
-# Пример вызова всего кортежа в одном сообщении:
-# frontend.send_photo(
-#   message.chat.id,
-#   workingtuple[2],
-#   caption=workingtuple[1],
-#   reply_markup=workingtuple[0])
-# При желании можно попытаться прикрутить маркдаун,
-# но он че то не пашет (parse_mode="Markdown")
-# СЛЕДИТЬ ЗА ТЕМ, ЧТОБЫ СТРОКИ НЕ БЫЛИ ДЛИННЕЕ 79 СИМВОЛОВ!
