@@ -8,18 +8,8 @@ from data.user import User
 new_user = User()
 
 
-# Запускается при вводе комманды /start
-# Была ли регистрация ранее
-@frontend.message_handler(commands=['start'])
-def start_command(message):
-    if not bot.user_exists(message.chat.id):
-        launch_scenario(message)
-    else:
-        finalize(message)
-
-
 # Запуск регистрации
-def launch_scenario(message):
+def launch(message):
     user_id = message.chat.id
 
     if message.from_user.last_name is None:
@@ -99,14 +89,16 @@ def coord_step(message):
     if not (coord is None):
         new_user.x = message.location.longitude
         new_user.y = message.location.latitude
-        bot.save_user(new_user)
-        finalize(message)
 
-        frontend.send_message(
+        bot.create_user(new_user)
+
+        m = frontend.send_message(
             message.from_user.id, f'Отлично, {new_user.name}' +
                                   f'\nВозраст: {str(new_user.age)}' +
                                   f'\nПол: {new_user.gender}' +
                                   f'\nГород: {new_user.city}')
+        finalize(m)
+
     else:
         msg = frontend.reply_to(
             message,
@@ -115,9 +107,7 @@ def coord_step(message):
         return
 
 
-# Если все ок, высылает главное меню
 def finalize(message):
-    """ Высылает пользователю главное меню """
-    frontend.send_message(
-        message.chat.id, "Меню",
-        reply_markup=main_menu.create_message())
+    t, m = main_menu.create_message()
+    frontend.edit_message_text(
+        t, message.chat.id, message.message_id, reply_markup=m)

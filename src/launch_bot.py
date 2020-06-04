@@ -1,21 +1,15 @@
 import logging
-import telebot
-import os
 
-from src.frontend import setup
+from telebot import logger
 
-logger = telebot.logger
-telebot.logger.setLevel(logging.INFO)
+from frontend.setup import frontend
+from frontend.scenarios import main
 
-# Используется для настройки heroku
-if os.environ.get('TG_TOKEN'):
-    token = os.environ.get('TG_TOKEN')
-else:
-    with open("resources/telegram_bot_token") as f:
-        token = f.readline()
+main.use()
+
+logger.setLevel(logging.INFO)
 
 try:
-    setup.create_frontend(token)
-    setup.start_frontend()
+    frontend.polling()
 except Exception as e:
     logger.exception(e)
