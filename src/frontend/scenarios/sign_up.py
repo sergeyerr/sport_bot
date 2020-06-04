@@ -1,14 +1,15 @@
 from telebot import types
 from frontend.setup import frontend
 from bot_core import bot
-
-from frontend.ui_components.main_menu import main_menu
+from frontend.ui_components import main_menu
 from data.user import User
 
 
 new_user = User()
 
 
+# Запускается при вводе комманды /start
+# Была ли регистрация ранее
 @frontend.message_handler(commands=['start'])
 def start_command(message):
     if not bot.user_exists(message.chat.id):
@@ -17,6 +18,7 @@ def start_command(message):
         finalize(message)
 
 
+# Запуск регистрации
 def launch_scenario(message):
     user_id = message.chat.id
 
@@ -36,6 +38,7 @@ def launch_scenario(message):
     frontend.register_next_step_handler(message, age_step)
 
 
+# Обработка указанного возраста
 def age_step(message):
     age = message.text
 
@@ -57,6 +60,7 @@ def age_step(message):
     frontend.register_next_step_handler(message, gender_step)
 
 
+# Обработка указанного пола
 def gender_step(message):
     gender = message.text
 
@@ -75,6 +79,7 @@ def gender_step(message):
         return
 
 
+# Обработка указанного города проживания
 def city_step(message):
     city = message.text
 
@@ -87,6 +92,7 @@ def city_step(message):
     frontend.register_next_step_handler(message, coord_step)
 
 
+# Обработка указанной геопозиции
 def coord_step(message):
     coord = message.location
 
@@ -109,7 +115,9 @@ def coord_step(message):
         return
 
 
+# Если все ок, высылает главное меню
 def finalize(message):
     """ Высылает пользователю главное меню """
-    frontend.send_message(message.chat.id, "Меню", reply_markup=main_menu())
-    pass
+    frontend.send_message(
+        message.chat.id, "Меню",
+        reply_markup=main_menu.create_message())
