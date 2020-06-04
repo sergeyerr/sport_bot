@@ -1,18 +1,12 @@
-import logging
-
 import telebot
 
-logger = telebot.logger
-telebot.logger.setLevel(logging.INFO)
+frontend = None
 
-token_path = "resources/telegram_bot_token"
 
-frontend = telebot.TeleBot("")
+def create_frontend(token):
+    global frontend
+    frontend = telebot.TeleBot(token)
 
-if __name__ == "__main__":
-    try:
-        with open(token_path) as f:
-            t = f.readline()
-        frontend = telebot.TeleBot(t)
-    except Exception as e:
-        logger.exception(e)
+
+def start_frontend():
+    frontend.polling()
