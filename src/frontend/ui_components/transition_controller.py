@@ -1,5 +1,15 @@
 from frontend.setup import frontend
 
+
+def use():
+    """
+        Функция нужна, чтобы линтер не возмущался
+        по поводу неиспользуемого модуля.
+        Да, я гений мысли.
+    """
+    pass
+
+
 # Обработчик кнопки Активности поблизости
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_activities_nearby"))
