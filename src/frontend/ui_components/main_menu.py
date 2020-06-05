@@ -38,4 +38,4 @@ def create_message():
     markup.add(
         settings_but, stats_but)
 
-    return "Меню", markup
+    return "Меню", markup, None

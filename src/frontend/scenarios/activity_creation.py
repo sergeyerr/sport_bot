@@ -9,14 +9,9 @@ from frontend.ui_components import main_menu
 new_activity = Activity()
 
 
-@frontend.message_handler(commands=['start'])
-def start_command(message):
-    launch_scenario(message)
-
-
 # Пользователь нажимает кноку - запускается функция
 # по созданию мероприятия
-def launch_scenario(message):
+def launch(message):
     markup = types.ReplyKeyboardMarkup(
         resize_keyboard=True,
         one_time_keyboard=True)
@@ -37,7 +32,7 @@ def type_step(message):
 
         frontend.send_message(
             message.chat.id,
-            'Введите дистанцию в км',
+            'Введите дистанцию в КМ',
             reply_markup=types.ReplyKeyboardRemove())
         frontend.register_next_step_handler(message, distance_step)
     else:
@@ -89,7 +84,7 @@ def coord_step(message):
 
         frontend.send_message(
             message.chat.id,
-            'Введите дату и время в формате ДД/ММ/ГГ ЧЧ:ММ')
+            'Введите дату и время в формате ДД/ММ/ГГГГ ЧЧ:ММ')
         frontend.register_next_step_handler(message, time_step)
     else:
         msg = frontend.reply_to(
@@ -104,7 +99,7 @@ def is_date_time(date):
     try:
         datetime.strptime(date, '%d/%m/%Y %H:%M')
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -115,7 +110,7 @@ def time_step(message):
     if is_date_time(date):
         new_activity.date = datetime.strptime(date, '%d/%m/%Y %H:%M')
 
-        bot.save_activity(new_activity)
+        bot.create_activity(new_activity)
         finalize(message)
     else:
         msg = frontend.reply_to(
@@ -126,23 +121,23 @@ def time_step(message):
         return
 
 
-# Callback на нажатие кнопки
-@frontend.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
-    if call.message:
-        if call.data == 'back':
-            frontend.send_message(
-                call.message.chat.id, "Меню",
-                reply_markup=main_menu.create_message())
-
-
 # Если все ок, высылает уведомление
 def finalize(message):
     markup = types.InlineKeyboardMarkup()
-    item = types.InlineKeyboardButton("Назад", callback_data='back')
+    item = types.InlineKeyboardButton(
+        "Назад", callback_data='activity_creation_back')
     markup.add(item)
 
     frontend.send_message(
         message.chat.id,
         text='Мероприятие успешно добавлено!',
         reply_markup=markup)
+
+
+# Callback на нажатие кнопки
+@frontend.callback_query_handler(
+    lambda call: call.data.startswith("activity_creation_back"))
+def callback_inline(call):
+    t, m, _ = main_menu.create_message()
+    frontend.send_message(call.message.chat.id, t, reply_markup=m)
+    frontend.answer_callback_query(call)

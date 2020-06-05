@@ -30,6 +30,7 @@ def __activities_near_button_pressed(call):
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_find_buddies"))
 def __find_buddies_button_pressed(call):
+    
     frontend.send_message(
         call.message.chat.id,
         "Поиск приятелей")
@@ -79,9 +80,9 @@ def __stats_button_pressed(call):
 
 # Обработчики просмотрщика активностей
 
-# @frontend.callback_query_handler(
-#     lambda call: call.data.startswith("stats_display_back"))
-# def __user_viewer_back_button_pressed(call):
-#     t, m = main_menu.create_message()
-#     logger.info(1, "Back button on stats_display was pressed")
-#     frontend.answer_callback_query(call.id)
+@frontend.callback_query_handler(
+    lambda call: call.data.startswith("stats_display_back"))
+def __user_viewer_back_button_pressed(call):
+    frontend.delete_message(call.message.chat.id, call.message.message_id)
+    logger.info("Deleting stats_display message")
+    frontend.answer_callback_query(call.id)

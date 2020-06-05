@@ -104,7 +104,6 @@ def coord_step(message):
             message,
             'Пожалуйста, отправьте геопозицию')
         frontend.register_next_step_handler(msg, coord_step)
-        return
 
 
 def finalize(message):
