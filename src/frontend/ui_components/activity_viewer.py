@@ -41,7 +41,7 @@ def __activities_markup(user_id, pointer):
         + f"{d.date().day}.{d.date().month}.{d.date().year} {d.time()}"
     markup.add(types.InlineKeyboardButton(text=text, callback_data="none"))
 
-    join_button_text = 'Присоединиться'
+    join_button_text = 'Добавиться'
     if is_participating(user_id, pointer):
         join_button_text = 'Покинуть'
 
@@ -78,6 +78,7 @@ def __update_markup(message, old_pointer, new_pointer):
     #     chat_id=message.chat.id,
     #     message_id=message.message_id,
     #     reply_markup=__activities_markup(new_pointer))
+    frontend.delete_message(message.chat.id, message.message_id)
     frontend.send_location(
         message.chat.id,
         latitude=all_activities[new_pointer].x,
