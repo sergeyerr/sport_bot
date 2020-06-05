@@ -10,7 +10,7 @@ if os.environ.get('DATABASE_URL'):
     database.initialize(db)
 else:
     # SQLite database using WAL journal mode and 64MB cache.
-    database = SqliteDatabase(
+    db = SqliteDatabase(
         database='resources/bot_persistence.db',
         pragmas={
             'journal_mode': 'wal',
