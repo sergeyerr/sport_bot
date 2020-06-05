@@ -7,6 +7,7 @@
 from telebot import logger
 
 from frontend.setup import frontend
+from frontend.scenarios import activity_creation
 from frontend.ui_components import stats_display
 from frontend.ui_components import user_viewer
 from frontend.ui_components import activity_viewer
@@ -116,11 +117,9 @@ def __buddies_button_pressed(call):
 
 # Обработчик кнопки Настройки аккаунта
 @frontend.callback_query_handler(
-    lambda call: call.data.startswith("mainmenu_settings"))
+    lambda call: call.data.startswith("mainmenu_new_activity"))
 def __settings_button_pressed(call):
-    frontend.send_message(
-        call.message.chat.id,
-        "Настройки аккаунта")
+    activity_creation.launch(call.message.chat.id)
     frontend.answer_callback_query(call.id)
 
 

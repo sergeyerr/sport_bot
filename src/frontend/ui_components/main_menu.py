@@ -5,7 +5,7 @@ from frontend.setup import frontend
 def create_message():
     markup = InlineKeyboardMarkup(row_width=3)
 
-    activitiesNear_but = InlineKeyboardButton(
+    activities_near_but = InlineKeyboardButton(
         text="Активности рядом",
         callback_data="mainmenu_activities_nearby")
 
@@ -21,21 +21,21 @@ def create_message():
         text="Мои приятели",
         callback_data="mainmenu_buddies")
 
-    settings_but = InlineKeyboardButton(
-        text="Настройки аккаунта",
-        callback_data="mainmenu_settings")
+    new_activity_but = InlineKeyboardButton(
+        text="Создать активность",
+        callback_data="mainmenu_new_activity")
 
     stats_but = InlineKeyboardButton(
         text="Статистика",
         callback_data="mainmenu_stats")
 
     markup.add(
-        activitiesNear_but, findBuddies_but)
+        activities_near_but, findBuddies_but)
 
     markup.add(
         activities_but, buddies_but)
 
     markup.add(
-        settings_but, stats_but)
+        new_activity_but, stats_but)
 
     return "Меню", markup, None
