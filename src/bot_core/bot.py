@@ -109,17 +109,17 @@ def activities_by_id(user_id):
 
 def participate_in_activity(user_id, activity_id):
     Activities.insert(user_id=user_id, activity_id=activity_id).execute()
-    
+
 
 def quit_activity(user_id, activity_id):
     Activities.delete().where(
         (Activities.activity_id == activity_id)
-        and (Activities.user_id == user_id)
+        & (Activities.user_id == user_id)
     ).execute()
 
 
 def is_participating(user_id, activity_id):
-    return (Activities.select().where(
-        Activities.activity_id == activity_id
-        and Activities.user_id == user_id)
+    return Activities.select().where(
+        (Activities.activity_id == activity_id)
+        & (Activities.user_id == user_id)
     ).exists()
