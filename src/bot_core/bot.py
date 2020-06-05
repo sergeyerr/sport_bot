@@ -48,7 +48,7 @@ def buddies_by_user_id(user_id):
     )
 
 
-def suggest_activities(user_id, radius=5.0):
+def suggest_activities(user_id, radius=30.0):
     """
         Находит мероприятия в округе
     """
@@ -69,7 +69,7 @@ def suggest_activities(user_id, radius=5.0):
     return activities_sorted
 
 
-def suggest_buddies(user_id, radius=5.0):
+def suggest_buddies(user_id, radius=30.0):
     """
         Находит пользователей в округе
     """
