@@ -1,8 +1,9 @@
 from geopy.distance import distance
 from data.user import User
 from data.activities import Activities
-from src.data.activity import Activity
+from data.activity import Activity
 from data.buddies import Buddies
+from peewee import SQL, fn
 
 
 def get_user_by_id(user_id):
@@ -24,15 +25,15 @@ def create_user(new_user):
     return new_user.save(force_insert=True)
 
 
-
-def create_activity(a:Activity):
+def create_activity(a: Activity):
     # fields = [Activity.type, Activity.distance, Activity.date,
     #           Activity.x, Activity.y]
     # data = (new_activity.type, new_activity.distance,
     #         new_activity.date, new_activity.x, new_activity.y)
     # query = Activity.insert(data, fields=fields).execute()
     # return query
-    tmp = Activity.create(name=a.name, x=a.x, y=a.y, date=a.date, distance=a.distance, estimated_time=a.estimated_time, type=a.type)
+    tmp = Activity.create(name=a.name, x=a.x, y=a.y, date=a.date, distance=a.distance, estimated_time=a.estimated_time,
+                          type=a.type)
     return tmp.save()
 
 
@@ -88,19 +89,19 @@ def get_all_activities():
 def activities_by_user(user_id):
     return list(
         Activity
-        .select()
-        .join(Activities)
-        .join(User)
-        .where(User.id == user_id))
+            .select()
+            .join(Activities)
+            .join(User)
+            .where(User.id == user_id))
 
 
 def users_by_activity(activity_id):
     return list(
         User
-        .select()
-        .join(Activities)
-        .join(Activity)
-        .where(Activity.id == activity_id)
+            .select()
+            .join(Activities)
+            .join(Activity)
+            .where(Activity.id == activity_id)
     )
 
 
@@ -120,3 +121,40 @@ def is_participating(user_id, activity_id):
         (Activities.activity_id == activity_id)
         & (Activities.user_id == user_id)
     ).exists()
+
+
+def get_top_user_activity(user_id: int) -> list:
+    """
+    возвращает самую популярную активность пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type) \
+                .join(Activities).join(User) \
+                .where(User.id == user_id) \
+                .group_by(Activity.name)
+                .order_by(SQL('totalcount').desc()))
+
+
+def get_finished_user_activities(user_id: int) -> list:
+    """
+    возвращает кол-во завершённых активностей
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount')) \
+                .join(Activities).join(User) \
+                .where(User.id == user_id) \
+                .group_by(User.id))
+
+
+def get_top_by_activity(activity: str) -> list:
+    """
+    возвращает кол-во завершённых активностей по ТИПУ активности
+    :param activity: str ID в телеграма
+    :return: list
+    """
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username) \
+                .join(Activities).join(Activity) \
+                .group_by(User.username) \
+                .order_by(SQL('totalcount').desc()))
