@@ -1,13 +1,10 @@
 from peewee import SqliteDatabase, PostgresqlDatabase
 import os
 
-if os.environ.get('POSTGRES_USER'):
+if os.environ.get('DATABASE_URL'):
     pg_db = PostgresqlDatabase(
-        os.environ.get('POSTGRES_BASE'),
-        user=os.environ.get('POSTGRES_USER'),
-        password=os.environ.get('POSTGRES_PASSWORD'),
-        host=os.environ.get('POSTGRES_HOST'),
-        port=os.environ.get('POSTGRES_PORT'))
+        os.environ.get('DATABASE_URL'),
+        sslmode='require')
 else:
     # SQLite database using WAL journal mode and 64MB cache.
     database = SqliteDatabase(

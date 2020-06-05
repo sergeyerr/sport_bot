@@ -1,0 +1,1 @@
+web: python src/launch_bot.py
