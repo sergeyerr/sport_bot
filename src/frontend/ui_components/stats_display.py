@@ -1,6 +1,6 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 from frontend import util
-
+from bot_core.bot import get_top_user_activity
 
 def create_message(user):
     markup = InlineKeyboardMarkup()
@@ -11,6 +11,7 @@ def create_message(user):
 
     # Сама текстовая часть сообщения, если чего-то не будет -
     # будет выдавать None (должно)
+    test = get_top_user_activity(user.id)
     message_text = \
         f"{user.name}, {user.age} лет,\n" + \
         f"{user.city},\n" + \

@@ -3,7 +3,7 @@ from data.user import User
 from data.activities import Activities
 from data.activity import Activity
 from data.buddies import Buddies
-
+from peewee import fn, SQL
 
 def get_user_by_id(user_id):
     try:
@@ -141,3 +141,16 @@ def is_participating(user_id, activity_id):
         (Activities.activity_id == activity_id)
         & (Activities.user_id == user_id)
     ).exists()
+
+
+def get_top_user_activity(user_id:int) -> list:
+    """
+    возвращает самую популярную активность пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.name)\
+        .join(Activities).join(User)\
+        .where(User.id == user_id)\
+        .group_by(Activity.name)
+        .order_by(SQL('totalcount').desc()))
