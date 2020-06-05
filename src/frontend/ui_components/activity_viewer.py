@@ -3,132 +3,144 @@
     мероприятия с возможностью записаться на них.
 """
 
+from telebot import logger
 from frontend.setup import frontend
 from bot_core.bot import get_all_activities
-from bot_core.bot import participate_in_activity, quit_activity, is_participating
-from telebot import types
-# Запись на мероприятие должна добавлять соответствующую запись
-# в таблицу activities.
+from bot_core.bot import (
+    participate_in_activity,
+    quit_activity,
+    is_participating
+)
+from telebot import types, apihelper
 
 all_activities = get_all_activities()
 pointer = 0
 
 
-def __update_markup(call):
-    message = call.message
-    activity_id = int(call.data.split('_')[3])
-
-    global pointer
-    if activity_id < 0:
-        activity_id = 0
-    elif activity_id >= len(all_activities):
-        activity_id = len(all_activities)-1
-
-    if pointer != activity_id:
-        pointer = activity_id
-        frontend.edit_message_live_location(latitude=all_activities[pointer].x,
-                                            longitude=all_activities[pointer].y,
-                                            chat_id=message.chat.id,
-                                            message_id=message.message_id,
-                                            reply_markup=get_activities_markup())
-
-
-def get_activities_markup():
-    markup = types.InlineKeyboardMarkup()
-    text = f"{all_activities[pointer].type}, {all_activities[pointer].distance}km, {all_activities[pointer].date}"
-    markup.add(types.InlineKeyboardButton(text=text, callback_data='smth'))
-
-
-
-    buttons = []
-    buttons.append(
-        types.InlineKeyboardButton(
-            text='Предыдущий',
-            callback_data=f'activity_viewer_prev_{pointer - 1}'))
-
-    join_button_text = 'Присоединиться'
-    if is_participating(1, pointer):
-        join_button_text = 'Покинуть'
-
-    buttons.append(
-        types.InlineKeyboardButton(
-            text=join_button_text,
-            callback_data=f'join_activity_{pointer}'))
-    buttons.append(
-        types.InlineKeyboardButton(
-            text='Следующий',
-            callback_data=f'activity_viewer_next_{pointer + 1}'))
-    buttons.append(
-        types.InlineKeyboardButton(
-            text='Назад',
-            callback_data=f'go_back'))
-    buttons.append(
-        types.InlineKeyboardButton(
-            text='Участники',
-            callback_data=f'participants_{pointer}'))
-    markup.add(*buttons)
-    return markup
-
-
-def create_message(message):
+def create_message(user_id=1):
     """
         Возвращает разметку компонента и
         текст сообщения, в котором разметка будет расположена.
 
         Возвращаемые значения
         ---------------------
-        пара: (message_text, message_markup)
+        кортеж: (message_text, message_markup, (x, y))
     """
-    #  А ВОТ И НЕ ВОЗВРАЩАЕТ РАЗМЕТКУ, МЕТОД ОТПРАВЛЯЕТ LOCATION И РАЗМЕТКУ, А ПОТОМ LOCATION МЕНЯЕТСЯ, ДАЛЬШЕ ДУМАЙ САМ КАК ДЕЛАТЬ
 
-    cur_msg = frontend.send_location(message.chat.id, all_activities[0].x, all_activities[0].y, live_period=86400,
-                                     reply_markup=get_activities_markup())
+    x = all_activities[0].x
+    y = all_activities[0].y
+    return ("Локация", __activities_markup(user_id, 0), (x, y))
+
+
+def __activities_markup(user_id, pointer):
+    markup = types.InlineKeyboardMarkup()
+    text = \
+        f"{all_activities[pointer].type}, " \
+        + f"{all_activities[pointer].distance}km, " \
+        + f"{all_activities[pointer].date}"
+    markup.add(types.InlineKeyboardButton(text=text, callback_data="none"))
+
+    join_button_text = 'Присоединиться'
+    if is_participating(user_id, pointer):
+        join_button_text = 'Покинуть'
+
+    buttons = [
+        types.InlineKeyboardButton(
+            text='Предыдущий',
+            callback_data=f'activity_viewer_prev_{pointer}_{pointer - 1}'),
+        types.InlineKeyboardButton(
+            text=join_button_text,
+            callback_data=f'activity_viewer_join_activity'
+            + f'_{user_id}_{pointer}'),
+        types.InlineKeyboardButton(
+            text='Следующий',
+            callback_data=f'activity_viewer_next_{pointer}_{pointer + 1}'),
+        types.InlineKeyboardButton(
+            text='Назад',
+            callback_data=f'activity_viewer_back'),
+        types.InlineKeyboardButton(
+            text='Участники',
+            callback_data=f'activity_viewer_participants_{pointer}')
+    ]
+
+    markup.add(*buttons)
+
+    return markup
+
+
+def __update_markup(message, old_pointer, new_pointer):
+    print(old_pointer, new_pointer)
+
+    # frontend.edit_message_live_location(
+    #     latitude=all_activities[new_pointer].x,
+    #     longitude=all_activities[new_pointer].y,
+    #     chat_id=message.chat.id,
+    #     message_id=message.message_id,
+    #     reply_markup=__activities_markup(new_pointer))
+    frontend.send_location(
+        message.chat.id,
+        latitude=all_activities[new_pointer].x,
+        longitude=all_activities[new_pointer].y,
+        reply_markup=__activities_markup(1, new_pointer)
+    )
+
+
+def __try_switch(call):
+    op, np = __parse_next_prev_data(call.data)
+    if np < 0 or np >= len(all_activities) or np == op:
+        return False
+
+    op, p = __parse_next_prev_data(call.data)
+    __update_markup(call.message, op, p)
+
+    return True
 
 
 @frontend.callback_query_handler(
     func=lambda call: call.data.startswith("activity_viewer_prev"))
 def __prev_button_pressed(call):
-    __update_markup(call)
-    frontend.answer_callback_query(call.id)
+    alert_text = None
+    if not __try_switch(call):
+        alert_text = "Показано самое первое мероприятие"
+    frontend.answer_callback_query(call.id, alert_text)
 
 
 @frontend.callback_query_handler(
     func=lambda call: call.data.startswith("activity_viewer_next"))
 def __next_button_pressed(call):
-    __update_markup(call)
-    frontend.answer_callback_query(call.id)
+    alert_text = None
+    if not __try_switch(call):
+        alert_text = "Показано последнее мероприятие"
+    frontend.answer_callback_query(call.id, alert_text)
 
 
 @frontend.callback_query_handler(
-    func=lambda call: call.data.startswith("join_activity"))
+    func=lambda call: call.data.startswith("activity_viewer_join_activity"))
 def __join_button_pressed(call):
-    if is_participating(1, int(call.data.split('_')[2])):
-        quit_activity(1, int(call.data.split('_')[2]))
+    user_id, activity_id = __parse_join_activity_data(call.data)
+    if is_participating(1, activity_id):
+        logger.info(f"Unlisting user from activity #{activity_id}")
+        quit_activity(1, activity_id)
     else:
-        participate_in_activity(1, int(call.data.split('_')[2]))
+        logger.info(f"Enlisting user in activity #{activity_id}")
+        participate_in_activity(1, activity_id)
 
-    frontend.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                       reply_markup=get_activities_markup())
+    try:
+        frontend.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=__activities_markup(1, activity_id))
+    except apihelper.ApiException as e:
+        print(e)
+
     frontend.answer_callback_query(call.id)
 
 
-@frontend.callback_query_handler(
-    func=lambda call: call.data.startswith("go_back"))
-def __go_back_button_pressed(call):
-    # ЗАГРУЗИТЬ МЕНЮ
-    frontend.answer_callback_query(call.id)
+def __parse_join_activity_data(data):
+    vs = data.split('_')
+    return int(vs[4]), int(vs[5])
 
 
-@frontend.callback_query_handler(
-    func=lambda call: call.data.startswith("participants"))
-def __participants_button_pressed(call):
-    #ВЫВЕСТИ СПИСОК УЧАСТНИКОВ СОБЫТИЯ (ПО ТАБЛИЦЕ ACTIVITIES)
-    frontend.answer_callback_query(call.id)
-
-
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("activity_viewer_viewer_cancel"))
-def activities_near_button_pressed(call):
-    # Этот обработчик реализовывать не нужно
-    # Данный вызов должен быть в конце каждого обработчика.
-    frontend.answer_callback_query(call.id)
+def __parse_next_prev_data(data):
+    vs = data.split('_')
+    return int(vs[3]), int(vs[4])

@@ -11,7 +11,7 @@ if os.environ.get('DATABASE_URL'):
 else:
     # SQLite database using WAL journal mode and 64MB cache.
     db = SqliteDatabase(
-        database='../resources/bot_persistence.db',
+        database='resources/bot_persistence.db',
         pragmas={
             'journal_mode': 'wal',
             'cache_size': -1024 * 64

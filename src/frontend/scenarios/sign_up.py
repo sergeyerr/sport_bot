@@ -104,10 +104,9 @@ def coord_step(message):
             message,
             'Пожалуйста, отправьте геопозицию')
         frontend.register_next_step_handler(msg, coord_step)
-        return
 
 
 def finalize(message):
-    t, m = main_menu.create_message()
+    t, m, _ = main_menu.create_message()
     frontend.edit_message_text(
         t, message.chat.id, message.message_id, reply_markup=m)
