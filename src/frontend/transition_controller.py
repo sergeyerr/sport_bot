@@ -65,57 +65,57 @@ def send_buddies(
 
 
 # Обработчик кнопки Активности поблизости
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("mainmenu_activities_nearby"))
-def __activities_near_button_pressed(call):
-    alert_text = None
-    activities = bot.suggest_activities(call.message.chat.id)
+# @frontend.callback_query_handler(
+#     lambda call: call.data.startswith("mainmenu_activities_nearby"))
+# def __activities_near_button_pressed(call):
+#     alert_text = None
+#     activities = bot.suggest_activities(call.message.chat.id)
 
-    logger.info("Serving activity_viewer with activities nearby")
-    if not send_activities(call.message, activities, alert_text):
-        alert_text = "Не найдено ни одно достаточно близкое к Вам мероприятие"
+#     logger.info("Serving activity_viewer with activities nearby")
+#     if not send_activities(call.message, activities, alert_text):
+#         alert_text = "Не найдено ни одно достаточно близкое к Вам мероприятие"
 
-    frontend.answer_callback_query(call.id, alert_text)
+#     frontend.answer_callback_query(call.id, alert_text)
 
 
 # Обработчик кнопки Активности
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("mainmenu_activities"))
-def __find_button_pressed(call):
-    alert_text = None
-    activities = bot.activities_by_user(call.message.chat.id)
+# @frontend.callback_query_handler(
+#     lambda call: call.data.startswith("mainmenu_activities"))
+# def __find_button_pressed(call):
+#     alert_text = None
+#     activities = bot.activities_by_user(call.message.chat.id)
 
-    logger.info("Serving activity_viewer with user's activities")
-    if not send_activities(call.message, activities, alert_text):
-        alert_text = "Вы не подписаны ни на одно мероприятие"
+#     logger.info("Serving activity_viewer with user's activities")
+#     if not send_activities(call.message, activities, alert_text):
+#         alert_text = "Вы не подписаны ни на одно мероприятие"
 
-    frontend.answer_callback_query(call.id, alert_text)
+#     frontend.answer_callback_query(call.id, alert_text)
 
 
 # Обработчик кнопки Поиск приятелей
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("mainmenu_find_buddies"))
-def __find_buddies_button_pressed(call):
-    alert_text = None
-    buddies = bot.suggest_buddies(call.message.chat.id)
-    if not send_buddies(call.message, buddies):
-        alert_text = 'Не найдено'
+# @frontend.callback_query_handler(
+#     lambda call: call.data.startswith("mainmenu_find_buddies"))
+# def __find_buddies_button_pressed(call):
+#     alert_text = None
+#     buddies = bot.suggest_buddies(call.message.chat.id)
+#     if not send_buddies(call.message, buddies):
+#         alert_text = 'Не найдено'
 
-    frontend.answer_callback_query(call.id, alert_text)
+#     frontend.answer_callback_query(call.id, alert_text)
 
 
 # Обработчик кнопки Мои приятели
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("mainmenu_buddies"))
-def __buddies_button_pressed(call):
-    buddies = bot.buddies_by_user_id(call.message.chat.id)
-    if not send_buddies(call.message, buddies):
-        alert_text = 'Список Ваших товарищей пуст'
+# @frontend.callback_query_handler(
+#     lambda call: call.data.startswith("mainmenu_buddies"))
+# def __buddies_button_pressed(call):
+#     buddies = bot.buddies_by_user_id(call.message.chat.id)
+#     if not send_buddies(call.message, buddies):
+#         alert_text = 'Список Ваших товарищей пуст'
 
-    frontend.answer_callback_query(call.id, alert_text)
+#     frontend.answer_callback_query(call.id, alert_text)
 
 
-# Обработчик кнопки Настройки аккаунта
+# Обработчик кнопки Новая активность аккаунта
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_new_activity"))
 def __settings_button_pressed(call):
