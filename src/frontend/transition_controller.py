@@ -36,12 +36,14 @@ def send_activities(
     if len(activities) == 0:
         return False
     else:
-        _, m, loc = activity_viewer.create_message(user_id, activities)
-        frontend.send_location(
-            user_id,
+        msg = frontend.send_location(message.chat.id, 0, 0, 86400)
+        _, m, loc = activity_viewer.create_component(
+            msg.message_id, user_id, activities)
+        frontend.edit_message_live_location(
             loc[0], loc[1],
-            reply_markup=m,
-            live_period=86400)
+            user_id,
+            msg.message_id,
+            reply_markup=m)
 
     return True
 
@@ -177,7 +179,7 @@ def __cancel_button_pressed(call):
 # Callback на нажатие кнопки
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("activity_creation_back"))
-def callback_inline(call):
+def __activity_creation_back_button_pressed(call):
     t, m, _ = main_menu.create_message()
     frontend.edit_message_text(
         t,
@@ -185,7 +187,4 @@ def callback_inline(call):
         call.message.message_id,
         reply_markup=m)
 
-    try:
-        frontend.answer_callback_query(call)
-    except Exception:
-        pass
+    #frontend.answer_callback_query(call)
