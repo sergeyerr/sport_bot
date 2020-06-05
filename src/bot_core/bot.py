@@ -20,10 +20,6 @@ def user_exists(user_id):
         return False
 
 
-def get_activities_by(user_id):
-    return Activity.select().where(Activity.user_id == user_id)
-
-
 def create_user(new_user):
     # fields = [User.id, User.name, User.username, User.age,
     #           User.gender, User.city, User.x, User.y]
@@ -42,6 +38,18 @@ def create_activity(new_activity):
     # query = Activity.insert(data, fields=fields).execute()
     # return query
     return new_activity.save(force_insert=True)
+
+
+def buddies_by_user_id(user_id):
+    return list(
+        User
+        .select()
+        .join(Buddies)
+        .where(
+            (User.id == user_id)
+            & (Buddies.buddy1 == user_id)
+        )
+    )
 
 
 def suggest_activities(user_id, radius=5.0):
@@ -65,7 +73,7 @@ def suggest_activities(user_id, radius=5.0):
     return activities_sorted
 
 
-def suggest_buddies(user_id, radius):
+def suggest_buddies(user_id, radius=5.0):
     """
         Находит пользователей в округе
     """
@@ -98,13 +106,22 @@ def get_all_activities():
     return list(Activity.select())
 
 
-def activities_by_id(user_id):
+def activities_by_user(user_id):
     return list(
         Activity
         .select()
         .join(Activities)
         .join(User)
-        .where(User.id == 3)
+        .where(User.id == user_id))
+
+
+def users_by_activity(activity_id):
+    return list(
+        User
+        .select()
+        .join(Activities)
+        .join(Activity)
+        .where(Activity.id == activity_id)
     )
 
 

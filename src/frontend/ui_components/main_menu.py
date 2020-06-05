@@ -6,7 +6,7 @@ def create_message():
     markup = InlineKeyboardMarkup(row_width=3)
 
     activitiesNear_but = InlineKeyboardButton(
-        text="Активности поблизости",
+        text="Активности рядом",
         callback_data="mainmenu_activities_nearby")
 
     findBuddies_but = InlineKeyboardButton(
