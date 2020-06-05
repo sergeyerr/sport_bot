@@ -1,11 +1,13 @@
-import logging
+import urllib.parse as urlparse
+import psycopg2
 
 from peewee import SqliteDatabase, PostgresqlDatabase, Proxy
 import os
+
+
 database = Proxy()
 
 if os.environ.get('DATABASE_URL'):
-    import urllib.parse as urlparse, psycopg2
     urlparse.uses_netloc.append('postgres')
     url = urlparse.urlparse(os.environ["DATABASE_URL"])
     db = PostgresqlDatabase(
