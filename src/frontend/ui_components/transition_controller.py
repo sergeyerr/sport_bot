@@ -1,8 +1,15 @@
+"""
+    В данном файле в неявном виде
+    описаны все возможные переходы
+    между компонентами в функционирующем меню.
+"""
+
 from telebot import logger
 
 from frontend.setup import frontend
 from frontend.ui_components import stats_display
 from frontend.ui_components import main_menu
+from frontend.ui_components import activity_viewer
 from bot_core import bot
 
 def use():
@@ -20,9 +27,11 @@ def use():
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_activities_nearby"))
 def __activities_near_button_pressed(call):
-    frontend.send_message(
+    _, m, loc = activity_viewer.create_message()
+    frontend.send_location(
         call.message.chat.id,
-        "Активности поблизости")
+        loc[0], loc[1],
+        reply_markup=m)
     frontend.answer_callback_query(call.id)
 
 
@@ -30,7 +39,7 @@ def __activities_near_button_pressed(call):
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_find_buddies"))
 def __find_buddies_button_pressed(call):
-    
+
     frontend.send_message(
         call.message.chat.id,
         "Поиск приятелей")
@@ -78,11 +87,27 @@ def __stats_button_pressed(call):
     frontend.answer_callback_query(call.id)
 
 
-# Обработчики просмотрщика активностей
+# Обработчики просмотрщика статистики
 
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("stats_display_back"))
 def __user_viewer_back_button_pressed(call):
     frontend.delete_message(call.message.chat.id, call.message.message_id)
     logger.info("Deleting stats_display message")
+    frontend.answer_callback_query(call.id)
+
+
+# Обработчики просмотрщика активностей
+
+@frontend.callback_query_handler(
+    func=lambda call: call.data.startswith("activity_viewer_back"))
+def __go_back_button_pressed(call):
+    frontend.delete_message(call.message.chat.id, call.message.message_id)
+    frontend.answer_callback_query(call.id)
+
+
+@frontend.callback_query_handler(
+    func=lambda call: call.data.startswith("activity_viewer_participants"))
+def __participants_button_pressed(call):
+    # ВЫВЕСТИ СПИСОК УЧАСТНИКОВ СОБЫТИЯ (ПО ТАБЛИЦЕ ACTIVITIES)
     frontend.answer_callback_query(call.id)

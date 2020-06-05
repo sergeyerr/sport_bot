@@ -1,4 +1,4 @@
-from peewee import IntegerField, Model, CompositeKey, ForeignKeyField
+from peewee import Model, CompositeKey, ForeignKeyField
 from data.db import database
 from data.activity import Activity
 from data.user import User
