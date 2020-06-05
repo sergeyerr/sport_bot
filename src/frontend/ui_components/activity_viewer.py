@@ -35,6 +35,7 @@ def create_message(user_id, activities):
 def __activities_markup(user_id, pointer):
     markup = types.InlineKeyboardMarkup()
     d = all_activities[pointer].date
+    print(d, type(d))
     text = \
         f"{all_activities[pointer].type}, " \
         + f"{all_activities[pointer].distance}km, " \
