@@ -1,1 +1,1 @@
-web: python src/launch_bot.py
+bot: python src/launch_bot.py
