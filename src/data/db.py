@@ -2,7 +2,7 @@ from peewee import SqliteDatabase, PostgresqlDatabase
 import os
 
 if os.environ.get('DATABASE_URL'):
-    pg_db = PostgresqlDatabase(
+    database = PostgresqlDatabase(
         os.environ.get('DATABASE_URL'),
         sslmode='require')
 else:
