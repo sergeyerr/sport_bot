@@ -10,5 +10,6 @@ __pycache__
 
 sandbox
 *launch_sandbox*
+*populate_db*
 
 venv/
