@@ -5,7 +5,7 @@
     из списка товарищей.
 """
 
-from telebot.types import InlineKeyboardMarkup
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from frontend.setup import frontend
 
@@ -23,7 +23,7 @@ from frontend.setup import frontend
 # на макете. Ключи для словаря называем исходя
 # из названий в макете.
 # Обязательная функция.
-def create_message(user: dict):
+def create_message(user: User):
     """
         Возвращает разметку компонента и
         текст сообщения, в котором разметка будет расположена.
@@ -39,6 +39,20 @@ def create_message(user: dict):
     """
 
     # Ваш код
+    markup = InlineKeyboardMarkup(row_width=3)
+
+    addBuddy_but = InlineKeyboardButton(
+        text="Добавить в приятели",
+        callback_data="user_profile_viewer_addBuddy")
+
+    cancel_but = InlineKeyboardButton(
+        text="Назад",
+        callback_data="user_profile_viewer_cancel")
+
+    markup.add(addBuddy_but)
+    markup.add(cancel_but)
+
+    return ("Пользователь", markup)
     pass
 
 
