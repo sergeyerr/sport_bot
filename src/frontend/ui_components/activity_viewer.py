@@ -13,11 +13,13 @@ from bot_core.bot import (
 )
 from telebot import types, apihelper
 
-all_activities = get_all_activities()
-pointer = 0
+
+instances = {
+    # message_id: activity_list
+}
 
 
-def create_message(user_id, activities):
+def create_component(message_id, user_id, activities):
     """
         Возвращает разметку компонента и
         текст сообщения, в котором разметка будет расположена.
@@ -27,22 +29,35 @@ def create_message(user_id, activities):
         кортеж: (message_text, message_markup, (x, y))
     """
 
-    x = all_activities[0].x
-    y = all_activities[0].y
-    return ("Локация", __activities_markup(user_id, 0), (x, y))
+    print(activities)
+
+    instances[message_id] = (user_id, activities)
+    x = activities[0].x
+    y = activities[0].y
+
+    p = False
+    if is_participating(user_id, activities[0].id):
+        p = True
+
+    return ("Локация", __activity_markup(activities, 0, p), (x, y))
 
 
-def __activities_markup(user_id, pointer):
+def drop_component(message_id):
+    if message_id in instances:
+        del instances[message_id]
+
+
+def __activity_markup(activities, pointer, is_participating):
     markup = types.InlineKeyboardMarkup()
-    d = all_activities[pointer].date
+    d = activities[pointer].date
     text = \
-        f"{all_activities[pointer].type}, " \
-        + f"{all_activities[pointer].distance}km, " \
+        f"{activities[pointer].type}, " \
+        + f"{activities[pointer].distance}km, " \
         + f"{d.date().day}.{d.date().month}.{d.date().year} {d.time()}"
     markup.add(types.InlineKeyboardButton(text=text, callback_data="none"))
 
     join_button_text = 'Добавиться'
-    if is_participating(user_id, pointer):
+    if is_participating:
         join_button_text = 'Покинуть'
 
     buttons = [
@@ -69,24 +84,24 @@ def __activities_markup(user_id, pointer):
 
 
 def __update_markup(message, old_pointer, new_pointer):
+    user_id, activities = instances[message.message_id]
+    p = False
+    if is_participating(user_id, activities[new_pointer].id):
+        p = True
+
     frontend.edit_message_live_location(
-        latitude=all_activities[new_pointer].x,
-        longitude=all_activities[new_pointer].y,
+        latitude=activities[new_pointer].x,
+        longitude=activities[new_pointer].y,
         chat_id=message.chat.id,
         message_id=message.message_id,
-        reply_markup=__activities_markup(message.chat.id, new_pointer))
-    # frontend.delete_message(message.chat.id, message.message_id)
-    # frontend.send_location(
-    #     message.chat.id,
-    #     latitude=all_activities[new_pointer].x,
-    #     longitude=all_activities[new_pointer].y,
-    #     reply_markup=__activities_markup(message.chat.id, new_pointer)
-    # )
+        reply_markup=__activity_markup(activities, new_pointer, p))
 
 
 def __try_switch(call):
+    _, activities = instances[call.message.message_id]
+
     op, np = __parse_next_prev_data(call.data)
-    if np < 0 or np >= len(all_activities) or np == op:
+    if np < 0 or np >= len(activities) or np == op:
         return False
 
     op, p = __parse_next_prev_data(call.data)
@@ -116,22 +131,28 @@ def __next_button_pressed(call):
 @frontend.callback_query_handler(
     func=lambda call: call.data.startswith("activity_viewer_join_activity"))
 def __join_button_pressed(call):
-    user_id = call.message.chat.id
-    activity_id = __parse_join_activity_data(call.data)
-    if is_participating(user_id, activity_id):
-        logger.info(f"Unlisting user from activity #{activity_id}")
-        quit_activity(user_id, activity_id)
-    else:
-        logger.info(f"Enlisting user in activity #{activity_id}")
-        participate_in_activity(user_id, activity_id)
+    if call.message.message_id in instances:
+        user_id, activities = instances[call.message.message_id]
+        pointer = __parse_join_activity_data(call.data)
+        activity_id = activities[pointer].id
 
-    try:
-        frontend.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=__activities_markup(user_id, activity_id))
-    except apihelper.ApiException as e:
-        print(e)
+        p = False
+        if is_participating(user_id, activity_id):
+            logger.info(f"Unlisting user from activity #{activity_id}")
+            quit_activity(user_id, activity_id)
+            p = False
+        else:
+            logger.info(f"Enlisting user in activity #{activity_id}")
+            participate_in_activity(user_id, activity_id)
+            p = True
+
+        try:
+            frontend.edit_message_reply_markup(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                reply_markup=__activity_markup(activities, pointer, p))
+        except apihelper.ApiException as e:
+            print(e)
 
     frontend.answer_callback_query(call.id)
 
