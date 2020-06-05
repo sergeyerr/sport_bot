@@ -10,7 +10,7 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Activity (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   type TEXT NOT NULL, -- (Бег, Велопрогулка..)
   distance REAL NOT NULL, -- (5km, 0.7km..)
   date DATETIME NOT NULL,
