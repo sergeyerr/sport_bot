@@ -1,9 +1,9 @@
-from peewee import CharField, IntegerField, Model, DoubleField, DateTimeField
+from peewee import CharField, IntegerField, Model, DoubleField, DateTimeField, AutoField
 from data.db import database
 
 
 class Activity(Model):
-    id = IntegerField(primary_key=True)
+    id = AutoField()
     name = CharField()
     type = CharField()
     distance = DoubleField()
