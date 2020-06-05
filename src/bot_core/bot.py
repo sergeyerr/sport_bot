@@ -2,6 +2,7 @@ from geopy.distance import distance
 from data.user import User
 from data.activities import Activities
 from data.activity import Activity
+from data.buddies import Buddies
 
 
 def get_user_by_id(user_id):
