@@ -1,5 +1,4 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
-from frontend.setup import frontend
 
 
 def create_message():
