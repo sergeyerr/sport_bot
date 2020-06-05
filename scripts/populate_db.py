@@ -1,7 +1,7 @@
-from data.user import User
-from data.activity import Activity
-from data.activities import Activities
-from data.buddies import Buddies
+from src.data.user import User
+from src.data.activity import Activity
+from src.data.activities import Activities
+from src.data.buddies import Buddies
 
 
 def insert_users():
