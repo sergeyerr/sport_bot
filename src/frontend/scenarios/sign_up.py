@@ -5,7 +5,9 @@ from frontend.ui_components import main_menu
 from data.user import User
 
 
-new_user = User()
+new_users = {
+    # user_id: user
+}
 
 
 # Запуск регистрации
@@ -18,9 +20,13 @@ def launch(message):
         message.from_user.first_name + \
         ' ' + message.from_user.last_name
 
-    new_user.id = user_id
-    new_user.name = user_name
-    new_user.username = f'@{message.chat.username}'
+    new_user = User(
+        id=user_id,
+        name=user_name,
+        username=f'@{message.chat.username}'
+    )
+
+    new_users[user_id] = new_user
 
     frontend.send_message(
         message.chat.id,
@@ -39,7 +45,7 @@ def age_step(message):
         frontend.register_next_step_handler(msg, age_step)
         return
 
-    new_user.age = int(age)
+    new_users[message.chat.id].age = int(age)
 
     markup = types.ReplyKeyboardMarkup(
         resize_keyboard=True, one_time_keyboard=True)
@@ -55,7 +61,7 @@ def gender_step(message):
     gender = message.text
 
     if gender in ('Мужской', 'Женский'):
-        new_user.gender = gender
+        new_users[message.chat.id].gender = gender
         frontend.send_message(
             message.chat.id,
             'Введите город проживания',
@@ -73,7 +79,7 @@ def gender_step(message):
 def city_step(message):
     city = message.text
 
-    new_user.city = city
+    new_users[message.chat.id].city = city
 
     frontend.send_message(
         message.chat.id,
@@ -88,9 +94,10 @@ def coord_step(message):
     coord = message.location
 
     if not (coord is None):
-        new_user.x = message.location.longitude
-        new_user.y = message.location.latitude
+        new_users[message.chat.id].x = message.location.longitude
+        new_users[message.chat.id].y = message.location.latitude
 
+        new_user = new_users[message.chat.id]
         bot.create_user(new_user)
 
         m = frontend.send_message(

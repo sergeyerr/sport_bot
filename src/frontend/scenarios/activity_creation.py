@@ -6,7 +6,9 @@ from datetime import datetime
 from frontend.ui_components import main_menu
 
 
-new_activity = Activity()
+new_activities = {
+    # chat_id: new_activity
+}
 
 
 # Пользователь нажимает кноку - запускается функция
@@ -16,6 +18,8 @@ def launch(user_id):
         resize_keyboard=True,
         one_time_keyboard=True)
     markup.add('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт')
+
+    new_activities[user_id] = Activity()
 
     message = frontend.send_message(
         user_id,
@@ -28,11 +32,10 @@ def type_step(message):
     type = message.text
 
     if type in ('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт'):
-        new_activity.type = type
+        new_activities[message.chat.id].type = type
 
         # !!!
-        new_activity.name = type
-        new_activity.estimated_time = 0
+        new_activities[message.chat.id].estimated_time = 0
 
         frontend.send_message(
             message.chat.id,
@@ -64,7 +67,7 @@ def distance_step(message):
     distance = message.text
 
     if is_digit(distance):
-        new_activity.distance = float(distance)
+        new_activities[message.chat.id].distance = float(distance)
 
         frontend.send_message(
             message.chat.id,
@@ -83,8 +86,8 @@ def coord_step(message):
     coord = message.location
 
     if not (coord is None):
-        new_activity.x = message.location.longitude
-        new_activity.y = message.location.latitude
+        new_activities[message.chat.id].x = message.location.longitude
+        new_activities[message.chat.id].y = message.location.latitude
 
         frontend.send_message(
             message.chat.id,
@@ -112,10 +115,12 @@ def time_step(message):
     date = message.text
 
     if is_date_time(date):
-        new_activity.date = datetime.strptime(date, '%d/%m/%Y %H:%M')
+        new_activities[message.chat.id].date = datetime.strptime(date, '%d/%m/%Y %H:%M')
 
-        bot.create_activity(new_activity)
-        finalize(message)
+        msg = frontend.send_message(
+            message.chat.id,
+            "Придумайте название для мероприятия!")
+        frontend.register_next_step_handler(msg, name_step)
     else:
         msg = frontend.reply_to(
             message,
@@ -123,6 +128,15 @@ def time_step(message):
             'в формате ДД/ММ/ГГГГ ЧЧ:ММ')
         frontend.register_next_step_handler(msg, time_step)
         return
+
+
+def name_step(message):
+    name = message.text
+
+    new_activities[message.chat.id].name = name
+    bot.create_activity(new_activities[message.chat.id])
+
+    finalize(message)
 
 
 # Если все ок, высылает уведомление
@@ -136,16 +150,3 @@ def finalize(message):
         message.chat.id,
         text='Мероприятие успешно добавлено!',
         reply_markup=markup)
-
-
-# Callback на нажатие кнопки
-@frontend.callback_query_handler(
-    lambda call: call.data.startswith("activity_creation_back"))
-def callback_inline(call):
-    t, m, _ = main_menu.create_message()
-    frontend.send_message(call.message.chat.id, t, reply_markup=m)
-
-    try:
-        frontend.answer_callback_query(call)
-    except Exception:
-        pass

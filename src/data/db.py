@@ -1,5 +1,5 @@
 import urllib.parse as urlparse
-import psycopg2
+# import psycopg2
 
 from peewee import SqliteDatabase, PostgresqlDatabase, Proxy
 import os
