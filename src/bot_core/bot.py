@@ -3,6 +3,7 @@ from data.user import User
 from data.activities import Activities
 from data.activity import Activity
 
+
 def get_user_by_id(user_id):
     try:
         return User.get(User.id == user_id)
@@ -82,3 +83,35 @@ def suggest_buddies(user_id, radius):
         other_buddies_sorted))
 
     return other_buddies_filtered
+
+
+def save_activity(new_activity):
+    fields = [Activity.type, Activity.distance, Activity.date,
+              Activity.x, Activity.y]
+    data = (new_activity.type, new_activity.distance,
+            new_activity.date, new_activity.x, new_activity.y)
+    query = Activity.insert(data, fields=fields).execute()
+    return query
+
+
+#  для тестирования!! по факту надо учитывать user_id
+def get_all_activities():
+    return list(Activity.select())
+
+
+def participate_in_activity(user_id, activity_id):
+    Activities.insert(user_id=user_id, activity_id=activity_id).execute()
+
+
+def quit_activity(user_id, activity_id):
+    Activities.delete().where(
+        (Activities.activity_id == activity_id)
+        & (Activities.user_id == user_id)
+    ).execute()
+
+
+def is_participating(user_id, activity_id):
+    return (Activities.select().where(
+        (Activities.activity_id == activity_id)
+        & (Activities.user_id == user_id))
+    ).exists()
