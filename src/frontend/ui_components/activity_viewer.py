@@ -34,10 +34,11 @@ def create_message(user_id=1):
 
 def __activities_markup(user_id, pointer):
     markup = types.InlineKeyboardMarkup()
+    d = all_activities[pointer].date
     text = \
         f"{all_activities[pointer].type}, " \
         + f"{all_activities[pointer].distance}km, " \
-        + f"{all_activities[pointer].date}"
+        + f"{d.date().day}.{d.date().month}.{d.date().year} {d.time()}"
     markup.add(types.InlineKeyboardButton(text=text, callback_data="none"))
 
     join_button_text = 'Присоединиться'
@@ -46,14 +47,14 @@ def __activities_markup(user_id, pointer):
 
     buttons = [
         types.InlineKeyboardButton(
-            text='Предыдущий',
+            text='←',
             callback_data=f'activity_viewer_prev_{pointer}_{pointer - 1}'),
         types.InlineKeyboardButton(
             text=join_button_text,
             callback_data=f'activity_viewer_join_activity'
             + f'_{user_id}_{pointer}'),
         types.InlineKeyboardButton(
-            text='Следующий',
+            text='→',
             callback_data=f'activity_viewer_next_{pointer}_{pointer + 1}'),
         types.InlineKeyboardButton(
             text='Назад',
