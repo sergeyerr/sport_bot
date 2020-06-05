@@ -42,13 +42,9 @@ def create_activity(new_activity):
 
 def buddies_by_user_id(user_id):
     return list(
-        User
+        Buddies
         .select()
-        .join(Buddies)
-        .where(
-            (User.id == user_id)
-            & (Buddies.buddy1 == user_id)
-        )
+        .join(User)
     )
 
 
@@ -90,15 +86,6 @@ def suggest_buddies(user_id, radius=5.0):
         other_buddies_sorted))
 
     return other_buddies_filtered
-
-
-def save_activity(new_activity):
-    fields = [Activity.type, Activity.distance, Activity.date,
-              Activity.x, Activity.y]
-    data = (new_activity.type, new_activity.distance,
-            new_activity.date, new_activity.x, new_activity.y)
-    query = Activity.insert(data, fields=fields).execute()
-    return query
 
 
 #  для тестирования!! по факту надо учитывать user_id
