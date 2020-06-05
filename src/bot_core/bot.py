@@ -21,13 +21,8 @@ def user_exists(user_id):
 
 
 def create_user(new_user):
-    # fields = [User.id, User.name, User.username, User.age,
-    #           User.gender, User.city, User.x, User.y]
-    # data = (new_user.id, new_user.name, new_user.username, new_user.age,
-    #         new_user.gender, new_user.city, new_user.x, new_user.y)
-    # query = User.insert(data, fields=fields).execute()
-    # return query
     return new_user.save(force_insert=True)
+
 
 
 def create_activity(a:Activity):
@@ -42,11 +37,7 @@ def create_activity(a:Activity):
 
 
 def buddies_by_user_id(user_id):
-    return list(
-        Buddies
-        .select()
-        .join(User)
-    )
+    return []
 
 
 def suggest_activities(user_id, radius=30.0):

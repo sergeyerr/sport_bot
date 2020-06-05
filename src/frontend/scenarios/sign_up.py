@@ -84,7 +84,7 @@ def city_step(message):
     frontend.send_message(
         message.chat.id,
         'Отправьте предпочтительное место для '
-        'занятий физической культурой.'
+        'занятий физической культурой. '
         'Если у Вас не получается это сделать, то зайдите с мобильной версии')
     frontend.register_next_step_handler(message, coord_step)
 

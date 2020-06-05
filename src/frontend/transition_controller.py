@@ -11,6 +11,7 @@ from frontend.scenarios import activity_creation
 from frontend.ui_components import stats_display
 from frontend.ui_components import user_viewer
 from frontend.ui_components import activity_viewer
+from frontend.ui_components import main_menu
 from bot_core import bot
 
 
@@ -178,7 +179,11 @@ def __cancel_button_pressed(call):
     lambda call: call.data.startswith("activity_creation_back"))
 def callback_inline(call):
     t, m, _ = main_menu.create_message()
-    frontend.send_message(call.message.chat.id, t, reply_markup=m)
+    frontend.edit_message_text(
+        t,
+        call.message.chat.id,
+        call.message.message_id,
+        reply_markup=m)
 
     try:
         frontend.answer_callback_query(call)
