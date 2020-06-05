@@ -17,7 +17,7 @@ all_activities = get_all_activities()
 pointer = 0
 
 
-def create_message(user_id=1):
+def create_message(user_id, activities):
     """
         Возвращает разметку компонента и
         текст сообщения, в котором разметка будет расположена.
@@ -35,6 +35,7 @@ def create_message(user_id=1):
 def __activities_markup(user_id, pointer):
     markup = types.InlineKeyboardMarkup()
     d = all_activities[pointer].date
+    print(d, type(d))
     text = \
         f"{all_activities[pointer].type}, " \
         + f"{all_activities[pointer].distance}km, " \
@@ -51,8 +52,7 @@ def __activities_markup(user_id, pointer):
             callback_data=f'activity_viewer_prev_{pointer}_{pointer - 1}'),
         types.InlineKeyboardButton(
             text=join_button_text,
-            callback_data=f'activity_viewer_join_activity'
-            + f'_{user_id}_{pointer}'),
+            callback_data=f'activity_viewer_join_activity_{pointer}'),
         types.InlineKeyboardButton(
             text='→',
             callback_data=f'activity_viewer_next_{pointer}_{pointer + 1}'),
@@ -70,21 +70,19 @@ def __activities_markup(user_id, pointer):
 
 
 def __update_markup(message, old_pointer, new_pointer):
-    print(old_pointer, new_pointer)
-
-    # frontend.edit_message_live_location(
-    #     latitude=all_activities[new_pointer].x,
-    #     longitude=all_activities[new_pointer].y,
-    #     chat_id=message.chat.id,
-    #     message_id=message.message_id,
-    #     reply_markup=__activities_markup(new_pointer))
-    frontend.delete_message(message.chat.id, message.message_id)
-    frontend.send_location(
-        message.chat.id,
+    frontend.edit_message_live_location(
         latitude=all_activities[new_pointer].x,
         longitude=all_activities[new_pointer].y,
-        reply_markup=__activities_markup(1, new_pointer)
-    )
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        reply_markup=__activities_markup(message.chat.id, new_pointer))
+    # frontend.delete_message(message.chat.id, message.message_id)
+    # frontend.send_location(
+    #     message.chat.id,
+    #     latitude=all_activities[new_pointer].x,
+    #     longitude=all_activities[new_pointer].y,
+    #     reply_markup=__activities_markup(message.chat.id, new_pointer)
+    # )
 
 
 def __try_switch(call):
@@ -119,19 +117,20 @@ def __next_button_pressed(call):
 @frontend.callback_query_handler(
     func=lambda call: call.data.startswith("activity_viewer_join_activity"))
 def __join_button_pressed(call):
-    user_id, activity_id = __parse_join_activity_data(call.data)
-    if is_participating(1, activity_id):
+    user_id = call.message.chat.id
+    activity_id = __parse_join_activity_data(call.data)
+    if is_participating(user_id, activity_id):
         logger.info(f"Unlisting user from activity #{activity_id}")
-        quit_activity(1, activity_id)
+        quit_activity(user_id, activity_id)
     else:
         logger.info(f"Enlisting user in activity #{activity_id}")
-        participate_in_activity(1, activity_id)
+        participate_in_activity(user_id, activity_id)
 
     try:
         frontend.edit_message_reply_markup(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            reply_markup=__activities_markup(1, activity_id))
+            reply_markup=__activities_markup(user_id, activity_id))
     except apihelper.ApiException as e:
         print(e)
 
@@ -140,7 +139,7 @@ def __join_button_pressed(call):
 
 def __parse_join_activity_data(data):
     vs = data.split('_')
-    return int(vs[4]), int(vs[5])
+    return int(vs[4])
 
 
 def __parse_next_prev_data(data):

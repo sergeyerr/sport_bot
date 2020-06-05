@@ -1,3 +1,5 @@
+import logging
+
 from data.db import database
 from data.user import User
 from data.activity import Activity

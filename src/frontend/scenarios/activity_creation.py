@@ -11,14 +11,14 @@ new_activity = Activity()
 
 # Пользователь нажимает кноку - запускается функция
 # по созданию мероприятия
-def launch(message):
+def launch(user_id):
     markup = types.ReplyKeyboardMarkup(
         resize_keyboard=True,
         one_time_keyboard=True)
     markup.add('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт')
 
-    frontend.send_message(
-        message.chat.id,
+    message = frontend.send_message(
+        user_id,
         'Выберите тип мероприятия', reply_markup=markup)
     frontend.register_next_step_handler(message, type_step)
 
@@ -29,6 +29,10 @@ def type_step(message):
 
     if type in ('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт'):
         new_activity.type = type
+
+        # !!!
+        new_activity.name = type
+        new_activity.estimated_time = 0
 
         frontend.send_message(
             message.chat.id,
@@ -125,7 +129,7 @@ def time_step(message):
 def finalize(message):
     markup = types.InlineKeyboardMarkup()
     item = types.InlineKeyboardButton(
-        "Назад", callback_data='activity_creation_back')
+        "В меню", callback_data='activity_creation_back')
     markup.add(item)
 
     frontend.send_message(
@@ -140,4 +144,8 @@ def finalize(message):
 def callback_inline(call):
     t, m, _ = main_menu.create_message()
     frontend.send_message(call.message.chat.id, t, reply_markup=m)
-    frontend.answer_callback_query(call)
+
+    try:
+        frontend.answer_callback_query(call)
+    except Exception:
+        pass
