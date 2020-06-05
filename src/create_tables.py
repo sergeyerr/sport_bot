@@ -7,7 +7,8 @@ from src.data.buddies import Buddies
 #from scripts.populate_db import insert_users, insert_activity, insert_activities, insert_buddies
 
 with database:
-    database.create_tables([User, Activity, Activities, Buddies])
+    database.create_tables([User, Activity])
+    database.create_tables([Activities, Buddies])
 
 #insert_users()
 #insert_activity()
