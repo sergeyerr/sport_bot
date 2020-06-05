@@ -1,13 +1,13 @@
-from peewee import SqliteDatabase, PostgresqlDatabase
+from peewee import SqliteDatabase, PostgresqlDatabase, Proxy
 import os
+database = Proxy()
 
-if os.environ.get('POSTGRES_USER'):
-    pg_db = PostgresqlDatabase(
-        os.environ.get('POSTGRES_BASE'),
-        user=os.environ.get('POSTGRES_USER'),
-        password=os.environ.get('POSTGRES_PASSWORD'),
-        host=os.environ.get('POSTGRES_HOST'),
-        port=os.environ.get('POSTGRES_PORT'))
+if os.environ.get('DATABASE_URL'):
+    import urllib.parse as urlparse, psycopg2
+    urlparse.uses_netloc.append('postgres')
+    url = urlparse.urlparse(os.environ["DATABASE_URL"])
+    db = PostgresqlDatabase(database=url.path[1:], user=url.username, password=url.password, host=url.hostname, port=url.port)
+    database.initialize(db)
 else:
     # SQLite database using WAL journal mode and 64MB cache.
     database = SqliteDatabase(
@@ -17,3 +17,4 @@ else:
             'cache_size': -1024 * 64
         }
     )
+    database.initialize(db)
