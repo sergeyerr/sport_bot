@@ -3,7 +3,7 @@ from frontend.setup import frontend
 from frontend.scenarios import sign_up
 from frontend.scenarios import activity_creation
 from frontend.ui_components import main_menu
-from frontend.ui_components import transition_controller
+from frontend import transition_controller
 from bot_core import bot
 
 transition_controller.use()
