@@ -1,7 +1,7 @@
 from geopy.distance import distance
 from data.user import User
 from data.activities import Activities
-from data.activity import Activity
+from src.data.activity import Activity
 from data.buddies import Buddies
 
 
@@ -24,8 +24,16 @@ def create_user(new_user):
     return new_user.save(force_insert=True)
 
 
-def create_activity(new_activity):
-    return new_activity.save(force_insert=True)
+
+def create_activity(a:Activity):
+    # fields = [Activity.type, Activity.distance, Activity.date,
+    #           Activity.x, Activity.y]
+    # data = (new_activity.type, new_activity.distance,
+    #         new_activity.date, new_activity.x, new_activity.y)
+    # query = Activity.insert(data, fields=fields).execute()
+    # return query
+    tmp = Activity.create(name=a.name, x=a.x, y=a.y, date=a.date, distance=a.distance, estimated_time=a.estimated_time, type=a.type)
+    return tmp.save()
 
 
 def buddies_by_user_id(user_id):
