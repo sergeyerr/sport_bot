@@ -3,6 +3,7 @@ from data.user import User
 from data.activities import Activities
 from data.activity import Activity
 from data.buddies import Buddies
+from peewee import SQL, fn
 
 
 def get_user_by_id(user_id):
@@ -87,19 +88,19 @@ def suggest_buddies(user_id, radius=30.0):
 def activities_by_user(user_id):
     return list(
         Activity
-        .select()
-        .join(Activities)
-        .join(User)
-        .where(User.id == user_id))
+            .select()
+            .join(Activities)
+            .join(User)
+            .where(User.id == user_id))
 
 
 def users_by_activity(activity_id):
     return list(
         User
-        .select()
-        .join(Activities)
-        .join(Activity)
-        .where(Activity.id == activity_id)
+            .select()
+            .join(Activities)
+            .join(Activity)
+            .where(Activity.id == activity_id)
     )
 
 
@@ -137,3 +138,40 @@ def is_participating(user_id, activity_id):
         (Activities.activity_id == activity_id)
         & (Activities.user_id == user_id)
     ).exists()
+
+
+def get_top_user_activity(user_id: int) -> list:
+    """
+    возвращает самую популярную активность пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type) \
+                .join(Activities).join(User) \
+                .where(User.id == user_id) \
+                .group_by(Activity.type)
+                .order_by(SQL('totalcount').desc()))
+
+
+def get_finished_user_activities(user_id: int) -> list:
+    """
+    возвращает кол-во завершённых активностей
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount')) \
+                .join(Activities).join(Activity) \
+                .where(User.id == user_id) \
+                .group_by(User.id))
+
+
+def get_top_by_activity(activity: str) -> list:
+    """
+    возвращает кол-во завершённых активностей по ТИПУ активности
+    :param activity: str ID в телеграма
+    :return: list
+    """
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username) \
+                .join(Activities).join(Activity) \
+                .group_by(User.username) \
+                .order_by(SQL('totalcount').desc()))
