@@ -41,17 +41,18 @@ def create_activity(a: Activity):
     return na.save()
 
 
-def get_top_user_activity(user_id:int) -> list:
+def buddies_by_user_id(user_id:int) -> list:
     """
-    возвращает самую популярную активность пользователя
+    возвращает друзей пользователя
     :param user_id: int ID в телеграма
     :return: list
     """
-    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.name)\
-        .join(Activities).join(User)\
-        .where(User.id == user_id)\
-        .group_by(Activity.name)
-        .order_by(SQL('totalcount').desc()))
+    Buddy = User.alias()
+    return list(User
+     .select()
+     .join(Buddies, on=(Buddies.buddy2 == User.id))
+     .join(Buddy, on=(Buddies.buddy1 == Buddy.id))
+     .where(Buddy.id == user_id))
 
 
 def suggest_activities(user_id, radius=30.0):
