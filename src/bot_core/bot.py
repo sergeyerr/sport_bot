@@ -132,7 +132,7 @@ def get_top_user_activity(user_id: int) -> list:
     return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type) \
                 .join(Activities).join(User) \
                 .where(User.id == user_id) \
-                .group_by(Activity.name)
+                .group_by(Activity.type)
                 .order_by(SQL('totalcount').desc()))
 
 
@@ -142,8 +142,8 @@ def get_finished_user_activities(user_id: int) -> list:
     :param user_id: int ID в телеграма
     :return: list
     """
-    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount')) \
-                .join(Activities).join(User) \
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount')) \
+                .join(Activities).join(Activity) \
                 .where(User.id == user_id) \
                 .group_by(User.id))
 
