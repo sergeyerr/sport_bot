@@ -34,15 +34,25 @@ def create_activity(a: Activity):
         name=a.name,
         x=a.x, y=a.y,
         date=a.date,
-        user_distance=a.distance,
+        distance=a.distance,
         estimated_time=a.estimated_time,
         type=a.type)
 
     return na.save()
 
 
-def buddies_by_user_id(user_id):
-    return []
+def buddies_by_user_id(user_id:int) -> list:
+    """
+    возвращает друзей пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    Buddy = User.alias()
+    return list(User
+     .select()
+     .join(Buddies, on=(Buddies.buddy2 == User.id))
+     .join(Buddy, on=(Buddies.buddy1 == Buddy.id))
+     .where(Buddy.id == user_id))
 
 
 def suggest_activities(user_id, radius=30.0):
@@ -57,11 +67,11 @@ def suggest_activities(user_id, radius=30.0):
     our_buddy = User.get(User.id == user_id)
     our_location = (our_buddy.x, our_buddy.y)
     activities_filtered = list(filter(
-        lambda act: user_distance(our_location, (act.x, act.y)).km <= radius,
+        lambda act: distance(our_location, (act.x, act.y)).km <= radius,
         activities))
     activities_sorted = sorted(
         activities_filtered,
-        key=lambda act: user_distance(our_location, (act.x, act.y)).km)
+        key=lambda act: distance(our_location, (act.x, act.y)).km)
 
     return activities_sorted
 

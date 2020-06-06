@@ -101,7 +101,7 @@ def __find_button_pressed(call):
     lambda call: call.data.startswith("mainmenu_find_buddies"))
 def __find_buddies_button_pressed(call):
     alert_text = None
-    buddies = bot.users() #bot.suggest_buddies(call.message.chat.id)
+    buddies = bot.suggest_buddies(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Не найдено'
 
@@ -112,10 +112,10 @@ def __find_buddies_button_pressed(call):
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_buddies"))
 def __buddies_button_pressed(call):
+    alert_text = None
     buddies = bot.buddies_by_user_id(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Список Ваших товарищей пуст'
-
     frontend.answer_callback_query(call.id, alert_text)
 
 

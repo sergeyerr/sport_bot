@@ -27,10 +27,15 @@ def create_message(user):
     if len(top_list) == 0:
         top_list = 'Вы непревзойдённы в прокрастинации'
     else:
+        flag = True
         for i in range(len(top_list)):
             if top_list[i].username == user.username:
                 top_list = i + 1
+                flag = False
                 break
+        if flag:
+            top_list = 'Вы непревзойдённы в прокрастинации'
+
 
     message_text = \
         f"{user.name}, {user.age} лет,\n" + \
