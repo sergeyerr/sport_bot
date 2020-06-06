@@ -1,3 +1,5 @@
+geopy
 wheel
 pyTelegramBotAPI
 peewee
+psycopg2-binary

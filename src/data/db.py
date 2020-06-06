@@ -1,10 +1,33 @@
-from peewee import SqliteDatabase
+import urllib.parse as urlparse
+# import psycopg2
 
-# SQLite database using WAL journal mode and 64MB cache.
-database = SqliteDatabase(
-    database='../resources/bot_persistence.db',
-    pragmas={
-        'journal_mode': 'wal',
-        'cache_size': -1024 * 64
-    }
-)
+from peewee import SqliteDatabase, PostgresqlDatabase, Proxy
+import os
+
+
+database = Proxy()
+
+if os.environ.get('DATABASE_URL'):
+    urlparse.uses_netloc.append('postgres')
+    url = urlparse.urlparse(os.environ["DATABASE_URL"])
+    db = PostgresqlDatabase(
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+        host=url.hostname,
+        port=url.port)
+    database.initialize(db)
+else:
+    # SQLite database using WAL journal mode and 64MB cache.
+    db = SqliteDatabase(
+        database='resources/bot_persistence.db',
+        pragmas={
+            'journal_mode': 'wal',
+            'cache_size': -1024 * 64
+        }
+    )
+    database.initialize(db)
+
+# logger = logging.getLogger('peewee')
+# logger.addHandler(logging.StreamHandler())
+# logger.setLevel(logging.DEBUG)

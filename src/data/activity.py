@@ -1,15 +1,16 @@
-from peewee import CharField, IntegerField, FloatField, Model
-from data import database
+from peewee import CharField, IntegerField, Model, DoubleField, DateTimeField, AutoField
+from data.db import database
 
 
 class Activity(Model):
-    id = IntegerField(primary_key=True)
-    user_id = CharField()
+    id = AutoField()
     name = CharField()
-    day = CharField()
-    hours = CharField()
-    x = FloatField()
-    y = FloatField()
+    type = CharField()
+    distance = DoubleField()
+    date = DateTimeField()
+    estimated_time = IntegerField()  # в минутах
+    x = DoubleField()
+    y = DoubleField()
 
     class Meta:
         database = database

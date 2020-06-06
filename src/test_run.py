@@ -1,5 +1,6 @@
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("echo")
-args = parser.parse_args()
-print(args.echo,1)
+from sys import argv
+
+from data import db, activities, activity, user
+from frontend.ui_components import main_menu, stats_display
+from frontend import util
+from frontend import setup
