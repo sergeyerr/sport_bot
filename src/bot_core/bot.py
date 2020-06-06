@@ -34,7 +34,7 @@ def create_activity(a: Activity):
         name=a.name,
         x=a.x, y=a.y,
         date=a.date,
-        user_distance=a.distance,
+        distance=a.distance,
         estimated_time=a.estimated_time,
         type=a.type)
 
