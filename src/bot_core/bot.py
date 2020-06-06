@@ -22,7 +22,7 @@ def user_exists(user_id):
 
 
 def create_user(new_user):
-    return new_user.save(force_insert=True)
+    return new_user.save()
 
 
 def user_distance(user_a, user_b):
@@ -34,7 +34,7 @@ def create_activity(a: Activity):
         name=a.name,
         x=a.x, y=a.y,
         date=a.date,
-        user_distance=a.distance,
+        distance=a.distance,
         estimated_time=a.estimated_time,
         type=a.type)
 
@@ -57,11 +57,11 @@ def suggest_activities(user_id, radius=30.0):
     our_buddy = User.get(User.id == user_id)
     our_location = (our_buddy.x, our_buddy.y)
     activities_filtered = list(filter(
-        lambda act: user_distance(our_location, (act.x, act.y)).km <= radius,
+        lambda act: distance(our_location, (act.x, act.y)).km <= radius,
         activities))
     activities_sorted = sorted(
         activities_filtered,
-        key=lambda act: user_distance(our_location, (act.x, act.y)).km)
+        key=lambda act: distance(our_location, (act.x, act.y)).km)
 
     return activities_sorted
 
@@ -146,9 +146,9 @@ def get_top_user_activity(user_id: int) -> list:
     :param user_id: int ID в телеграма
     :return: list
     """
-    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type) \
-                .join(Activities).join(User) \
-                .where(User.id == user_id) \
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type)
+                .join(Activities).join(User)
+                .where(User.id == user_id)
                 .group_by(Activity.type)
                 .order_by(SQL('totalcount').desc()))
 
@@ -171,7 +171,7 @@ def get_top_by_activity(activity: str) -> list:
     :param activity: str ID в телеграма
     :return: list
     """
-    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username) \
-                .join(Activities).join(Activity) \
-                .group_by(User.username) \
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username)
+                .join(Activities).join(Activity)
+                .group_by(User.username)
                 .order_by(SQL('totalcount').desc()))

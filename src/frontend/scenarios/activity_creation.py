@@ -18,6 +18,7 @@ def launch(user_id):
         resize_keyboard=True,
         one_time_keyboard=True)
     markup.add('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт')
+    markup.add('Отмена')
 
     new_activities[user_id] = Activity()
 
@@ -29,56 +30,46 @@ def launch(user_id):
 
 # Обработка указанного типа мероприятия
 def type_step(message):
-    type = message.text
+    if message.text.lower() != 'отмена':
+        type = message.text
 
-    if type in ('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт'):
-        new_activities[message.chat.id].type = type
+        if type in ('Ходьба', 'Бег', 'Велопрогулка', 'Велоспорт'):
+            new_activities[message.chat.id].type = type
 
-        # !!!
-        new_activities[message.chat.id].estimated_time = 0
+            # !!!
+            new_activities[message.chat.id].estimated_time = 0
 
-        frontend.send_message(
-            message.chat.id,
-            'Введите дистанцию в КМ',
-            reply_markup=types.ReplyKeyboardRemove())
-        frontend.register_next_step_handler(message, distance_step)
-    else:
-        msg = frontend.reply_to(
-            message,
-            'Кнопка не была нажата. Нажмите кнопку, пожалуйста')
-        frontend.register_next_step_handler(msg, type_step)
-        return
-
-
-# Проверка на число
-def is_digit(string):
-    if string.isdigit():
-        return True
-    else:
-        try:
-            float(string)
-            return True
-        except ValueError:
-            return False
+            frontend.send_message(
+                message.chat.id,
+                'Введите дистанцию в километрах',
+                reply_markup=types.ReplyKeyboardRemove())
+            frontend.register_next_step_handler(message, distance_step)
+        else:
+            msg = frontend.reply_to(
+                message,
+                'Кнопка не была нажата. Нажмите кнопку, пожалуйста.'
+                'Или напечатайте "Отмена" для отмены')
+            frontend.register_next_step_handler(msg, type_step)
 
 
 # Обработка указанной дистанции
 def distance_step(message):
-    distance = message.text
+    if message.text.lower() != "отмена":
+        distance = message.text
 
-    if is_digit(distance):
-        new_activities[message.chat.id].distance = float(distance)
+        if is_digit(distance):
+            new_activities[message.chat.id].distance = float(distance)
 
-        frontend.send_message(
-            message.chat.id,
-            'Отправьте место проведения мероприятия')
-        frontend.register_next_step_handler(message, coord_step)
-    else:
-        msg = frontend.reply_to(
-            message,
-            'Дистанция должна быть числом. Пожалуйста, повторите попытку')
-        frontend.register_next_step_handler(msg, distance_step)
-        return
+            frontend.send_message(
+                message.chat.id,
+                'Отправьте место проведения мероприятия')
+            frontend.register_next_step_handler(message, coord_step)
+        else:
+            msg = frontend.reply_to(
+                message,
+                'Дистанция должна быть числом. Пожалуйста, повторите попытку')
+            frontend.register_next_step_handler(msg, distance_step)
+            return
 
 
 # Обработка указанной геопозиции
@@ -150,3 +141,12 @@ def finalize(message):
         message.chat.id,
         text='Мероприятие успешно добавлено!',
         reply_markup=markup)
+
+
+# Проверка на число
+def is_digit(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False

@@ -5,7 +5,6 @@
 
 from telebot import logger
 from frontend.setup import frontend
-from bot_core.bot import get_all_activities
 from bot_core.bot import (
     participate_in_activity,
     quit_activity,

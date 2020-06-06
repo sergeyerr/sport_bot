@@ -7,12 +7,16 @@
 from telebot import logger
 
 from frontend.setup import frontend
-from frontend.scenarios import activity_creation
-from frontend.ui_components import stats_display
-from frontend.ui_components import user_viewer
-from frontend.ui_components import activity_viewer
-from frontend.ui_components import main_menu
-from frontend.ui_components import user_profile_viewer
+from frontend.scenarios import activity_creation, sign_up
+
+from frontend.ui_components import (
+    stats_display,
+    user_viewer,
+    activity_viewer,
+    main_menu,
+    user_profile_viewer
+)
+
 from bot_core import bot
 
 
@@ -101,7 +105,7 @@ def __find_button_pressed(call):
     lambda call: call.data.startswith("mainmenu_find_buddies"))
 def __find_buddies_button_pressed(call):
     alert_text = None
-    buddies = bot.users() #bot.suggest_buddies(call.message.chat.id)
+    buddies = bot.suggest_buddies(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Не найдено'
 
@@ -112,6 +116,7 @@ def __find_buddies_button_pressed(call):
 @frontend.callback_query_handler(
     lambda call: call.data.startswith("mainmenu_buddies"))
 def __buddies_button_pressed(call):
+    alert_text = None
     buddies = bot.buddies_by_user_id(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Список Ваших товарищей пуст'
@@ -136,6 +141,13 @@ def __stats_button_pressed(call):
     frontend.send_photo(
         call.message.chat.id, p, t, reply_markup=m)
     frontend.answer_callback_query(call.id)
+
+
+@frontend.callback_query_handler(
+    lambda call: call.data.startswith("mainmenu_update_profile")
+)
+def __update_profile_button_pressed(call):
+    sign_up.launch(call.message)
 
 
 # Обработчики просмотрщика статистики

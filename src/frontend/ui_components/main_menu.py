@@ -28,6 +28,11 @@ def create_message():
         text="Статистика",
         callback_data="mainmenu_stats")
 
+    update_profile_but = InlineKeyboardButton(
+        text="Обновить профиль",
+        callback_data="mainmenu_update_profile"
+    )
+
     markup.add(
         activities_near_but, findBuddies_but)
 
@@ -36,5 +41,7 @@ def create_message():
 
     markup.add(
         new_activity_but, stats_but)
+
+    markup.add(update_profile_but)
 
     return "Меню", markup, None

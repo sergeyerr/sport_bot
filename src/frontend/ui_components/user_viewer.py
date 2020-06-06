@@ -61,10 +61,8 @@ def __recreate_markup(user_a, users, pointer):
     offset = pointer * USERS_PER_CARD
     index = 0
     for user in users[offset:USERS_PER_CARD+offset]:
-        uinfo = f"{user.name}, {user.username}, {str(user.age)}"
-        udist = str(round(bot.distance(user_a, user))) + ' км'
-        activities = ", ".join(map(
-            lambda x: x.name, bot.activities_by_user(user_a)))
+        uinfo = f"{user.username}, {str(user.age)}"
+        udist = str(round(bot.user_distance(user_a, user))) + ' км'
         text = f"{uinfo}, {udist}, {activities}"
         markup.add(types.InlineKeyboardButton(
             text=text,
