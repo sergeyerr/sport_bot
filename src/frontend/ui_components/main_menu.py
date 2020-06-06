@@ -21,7 +21,7 @@ def create_message():
         callback_data="mainmenu_buddies")
 
     new_activity_but = InlineKeyboardButton(
-        text="Создать активность",
+        text="Создать актив!",
         callback_data="mainmenu_new_activity")
 
     stats_but = InlineKeyboardButton(

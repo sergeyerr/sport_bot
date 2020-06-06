@@ -29,7 +29,6 @@ def create_component(message_id, user_id, activities):
         кортеж: (message_text, message_markup, (x, y))
     """
 
-    print(activities)
 
     instances[message_id] = (user_id, activities)
     x = activities[0].x
@@ -54,9 +53,10 @@ def __activity_markup(activities, pointer, is_participating):
         f"{activities[pointer].type}, " \
         + f"{activities[pointer].distance}km, " \
         + f"{d.date().day}.{d.date().month}.{d.date().year} {d.time()}"
+    markup.add(types.InlineKeyboardButton(text=activities[pointer].name, callback_data="none"))
     markup.add(types.InlineKeyboardButton(text=text, callback_data="none"))
 
-    join_button_text = 'Добавиться'
+    join_button_text = 'В деле!'
     if is_participating:
         join_button_text = 'Покинуть'
 
@@ -90,8 +90,8 @@ def __update_markup(message, old_pointer, new_pointer):
         p = True
 
     frontend.edit_message_live_location(
-        latitude=activities[new_pointer].x,
-        longitude=activities[new_pointer].y,
+        latitude=activities[new_pointer].y,
+        longitude=activities[new_pointer].x,
         chat_id=message.chat.id,
         message_id=message.message_id,
         reply_markup=__activity_markup(activities, new_pointer, p))
