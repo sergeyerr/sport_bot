@@ -41,8 +41,17 @@ def create_activity(a: Activity):
     return na.save()
 
 
-def buddies_by_user_id(user_id):
-    return []
+def get_top_user_activity(user_id:int) -> list:
+    """
+    возвращает самую популярную активность пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.name)\
+        .join(Activities).join(User)\
+        .where(User.id == user_id)\
+        .group_by(Activity.name)
+        .order_by(SQL('totalcount').desc()))
 
 
 def suggest_activities(user_id, radius=30.0):
