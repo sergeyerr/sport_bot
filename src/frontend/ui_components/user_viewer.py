@@ -2,6 +2,7 @@ import math
 
 from telebot import types
 from frontend.setup import frontend
+from bot_core import bot
 
 instances = {
     # message_id: user_list
@@ -11,9 +12,11 @@ instances = {
 USERS_PER_CARD = 3
 
 
-def create_component(message_id, users):
+def create_component(message_id, user_a, users):
     instances[message_id] = users
-    return (__message_text(users, 0), __recreate_markup(users, 0), None)
+    return (
+        __message_text(users, 0),
+        __recreate_markup(user_a, users, 0), None)
 
 
 def drop_component(message_id):
@@ -27,7 +30,7 @@ def __parse_switch_call_data(users, call):
         try:
             p = int(parts[2])
             total_pages = math.ceil(len(users) / USERS_PER_CARD)
-            if p < 0 or p > total_pages:
+            if p < 0 or p >= total_pages:
                 return None
             else:
                 return p
@@ -35,7 +38,7 @@ def __parse_switch_call_data(users, call):
             return 0
 
 
-def __update_markup(users, call):
+def __update_markup(user_a, users, call):
     message = call.message
     p = __parse_switch_call_data(users, call)
     if p is not None:
@@ -43,7 +46,7 @@ def __update_markup(users, call):
             chat_id=message.chat.id,
             message_id=message.message_id,
             text=__message_text(users, p),
-            reply_markup=__recreate_markup(users, p))
+            reply_markup=__recreate_markup(user_a, users, p))
 
 
 def __message_text(users, pointer):
@@ -52,15 +55,16 @@ def __message_text(users, pointer):
     return f'Страница {page_number}/{int(total_pages)}'
 
 
-def __recreate_markup(users, pointer):
-    markup = types.InlineKeyboardMarkup()
+def __recreate_markup(user_a, users, pointer):
+    markup = types.InlineKeyboardMarkup(row_width=5)
 
     offset = pointer * USERS_PER_CARD
-    index = pointer
+    index = 0
     for user in users[offset:USERS_PER_CARD+offset]:
         uinfo = f"{user.name}, {user.username}, {str(user.age)}"
-        udist = '?' + 'км'
-        activities = '?'
+        udist = str(round(bot.distance(user_a, user))) + ' км'
+        activities = ", ".join(map(
+            lambda x: x.name, bot.activities_by_user(user_a)))
         text = f"{uinfo}, {udist}, {activities}"
         markup.add(types.InlineKeyboardButton(
             text=text,
@@ -96,8 +100,9 @@ def __append_nav_buttons(markup, pointer):
     func=lambda call: call.data.startswith("userviewer_next"))
 def __next_button_pressed(call):
     users = instances.get(call.message.message_id)
+    user_a = bot.get_user_by_id(call.message.chat.id)
     if users is not None:
-        __update_markup(users, call)
+        __update_markup(user_a, users, call)
     frontend.answer_callback_query(call.id)
 
 
@@ -105,6 +110,7 @@ def __next_button_pressed(call):
     func=lambda call: call.data.startswith("userviewer_prev"))
 def __prev_button_pressed(call):
     users = instances.get(call.message.message_id)
+    user_a = bot.get_user_by_id(call.message.chat.id)
     if users is not None:
-        __update_markup(users, call)
+        __update_markup(user_a, users, call)
     frontend.answer_callback_query(call.id)
