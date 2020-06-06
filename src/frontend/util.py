@@ -11,11 +11,10 @@ def user_picture(user_id):
         # Берем айдишник получившегося фото
         file_id = pictureMas[-1].file_id
     # Случай, когда нет аватарки (мб выдавать месс, мол, поставьте аву, пж?)
-    except IndexError:
+    except Exception:
         if not os.path.isfile('out.jpg'):
             url = 'https://i.ibb.co/m5NDJqv/noavatar.jpg'
             f = open('out.jpg', 'wb')
             f.write(urllib.request.urlopen(url).read())
         file_id = open('out.jpg', 'rb')
-
     return file_id

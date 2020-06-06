@@ -29,7 +29,6 @@ def create_component(message_id, user_id, activities):
         кортеж: (message_text, message_markup, (x, y))
     """
 
-
     instances[message_id] = (user_id, activities)
     x = activities[0].x
     y = activities[0].y
@@ -75,7 +74,8 @@ def __activity_markup(activities, pointer, is_participating):
             callback_data=f'activity_viewer_back'),
         types.InlineKeyboardButton(
             text='Участники',
-            callback_data=f'activity_viewer_participants_{pointer}')
+            callback_data=f'activity_viewer_participants'
+            f'_{activities[pointer].id}')
     ]
 
     markup.add(*buttons)

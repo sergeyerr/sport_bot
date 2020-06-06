@@ -12,6 +12,7 @@ from frontend.ui_components import stats_display
 from frontend.ui_components import user_viewer
 from frontend.ui_components import activity_viewer
 from frontend.ui_components import main_menu
+from frontend.ui_components import user_profile_viewer
 from bot_core import bot
 
 
@@ -51,16 +52,16 @@ def send_activities(
 def send_buddies(
     message,
     buddies,
-    if_none_message="Товарищи не найдены"
 ):
     user_id = message.chat.id
+    user = bot.get_user_by_id(user_id)
 
     if len(buddies) == 0:
         return False
     else:
         msg = frontend.send_message(
-            user_id, "Просмотр пользователей")
-        t, m, _ = user_viewer.create_component(msg.message_id, buddies)
+            user_id, "Загрузка...")
+        t, m, _ = user_viewer.create_component(msg.message_id, user, buddies)
         frontend.edit_message_text(
             t, msg.chat.id, msg.message_id, reply_markup=m)
 
@@ -100,7 +101,7 @@ def __find_button_pressed(call):
     lambda call: call.data.startswith("mainmenu_find_buddies"))
 def __find_buddies_button_pressed(call):
     alert_text = None
-    buddies = bot.suggest_buddies(call.message.chat.id)
+    buddies = bot.users() #bot.suggest_buddies(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Не найдено'
 
@@ -160,8 +161,14 @@ def __go_back_button_pressed(call):
 @frontend.callback_query_handler(
     func=lambda call: call.data.startswith("activity_viewer_participants"))
 def __participants_button_pressed(call):
-    # ВЫВЕСТИ СПИСОК УЧАСТНИКОВ СОБЫТИЯ (ПО ТАБЛИЦЕ ACTIVITIES)
-    frontend.answer_callback_query(call.id)
+    alert_text = None
+    activity_id = call.data.split('_')[3]
+    participants = bot.users_by_activity(activity_id)
+    if not send_buddies(call.message, participants):
+        alert_text = \
+            "В мероприятии никто не участвует. Вы можете стать первым!"
+
+    frontend.answer_callback_query(call.id, alert_text)
 
 
 # Обработчики просмотрщика пользователей
@@ -173,8 +180,23 @@ def __cancel_button_pressed(call):
     user_viewer.drop_component(call.message.message_id)
     frontend.delete_message(call.message.chat.id, call.message.message_id)
 
-# Обработчики создания активностей
 
+@frontend.callback_query_handler(
+    func=lambda call: call.data.startswith("userviewer_select"))
+def __select_button_pressed(call):
+    user_id = call.data.split('_')[2]
+    logger.debug(
+        f"User profile with id {user_id} selected "
+        ", serving user_profile_viewer")
+    user_a = bot.get_user_by_id(call.message.chat.id)
+    user_b = bot.get_user_by_id(user_id)
+    t, m, f = user_profile_viewer.create_component(user_a, user_b)
+    frontend.send_photo(call.message.chat.id, f, t, reply_markup=m)
+
+    frontend.answer_callback_query(call.id)
+
+
+# Обработчики создания активностей
 
 # Callback на нажатие кнопки
 @frontend.callback_query_handler(
@@ -187,4 +209,17 @@ def __activity_creation_back_button_pressed(call):
         call.message.message_id,
         reply_markup=m)
 
-    #frontend.answer_callback_query(call)
+    # frontend.answer_callback_query(call)
+
+
+# Обработчики просмотрщика профиля пользователя
+
+@frontend.callback_query_handler(
+    lambda call: call.data.startswith("user_profile_viewer_cancel"))
+def user_profile_viewer_cancel(call):
+    try:
+        frontend.delete_message(call.message.chat.id, call.message.message_id)
+    except Exception:
+        pass
+
+    frontend.answer_callback_query(call.id)
