@@ -38,7 +38,7 @@ def create_message(user):
 
 
     message_text = \
-        f"{user.name}, {user.age} лет,\n" + \
+        f"{user.name}, {user.age},\n" + \
         f"{user.city},\n" + \
         f"Законченных активностей: {total_activities},\n" + \
         f"Любимый вид спорта: {top_activity},\n" + \

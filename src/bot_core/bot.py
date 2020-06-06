@@ -22,7 +22,7 @@ def user_exists(user_id):
 
 
 def create_user(new_user):
-    return new_user.save(force_insert=True)
+    return new_user.save()
 
 
 def user_distance(user_a, user_b):
@@ -156,9 +156,9 @@ def get_top_user_activity(user_id: int) -> list:
     :param user_id: int ID в телеграма
     :return: list
     """
-    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type) \
-                .join(Activities).join(User) \
-                .where(User.id == user_id) \
+    return list(Activity.select(fn.COUNT(Activity.id).alias('totalcount'), Activity.type)
+                .join(Activities).join(User)
+                .where(User.id == user_id)
                 .group_by(Activity.type)
                 .order_by(SQL('totalcount').desc()))
 
@@ -181,7 +181,7 @@ def get_top_by_activity(activity: str) -> list:
     :param activity: str ID в телеграма
     :return: list
     """
-    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username) \
-                .join(Activities).join(Activity) \
-                .group_by(User.username) \
+    return list(User.select(fn.COUNT(Activity.id).alias('totalcount'), User.username)
+                .join(Activities).join(Activity)
+                .group_by(User.username)
                 .order_by(SQL('totalcount').desc()))

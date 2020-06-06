@@ -16,9 +16,9 @@ def launch(message):
 
     if message.from_user.last_name is None:
         message.from_user.last_name = ""
-    user_name = \
-        message.from_user.first_name + \
-        ' ' + message.from_user.last_name
+    user_name = str(message.chat.first_name)
+    if message.chat.last_name is not None:
+        user_name += message.chat.last_name
 
     new_user = User(
         id=user_id,
@@ -116,5 +116,4 @@ def coord_step(message):
 
 def finalize(message):
     t, m, _ = main_menu.create_message()
-    frontend.edit_message_text(
-        t, message.chat.id, message.message_id, reply_markup=m)
+    frontend.send_message(message.chat.id, t, reply_markup=m)
