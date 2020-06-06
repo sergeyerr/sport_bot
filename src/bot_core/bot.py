@@ -66,11 +66,11 @@ def suggest_activities(user_id, radius=30.0):
     our_buddy = User.get(User.id == user_id)
     our_location = (our_buddy.x, our_buddy.y)
     activities_filtered = list(filter(
-        lambda act: user_distance(our_location, (act.x, act.y)).km <= radius,
+        lambda act: distance(our_location, (act.x, act.y)).km <= radius,
         activities))
     activities_sorted = sorted(
         activities_filtered,
-        key=lambda act: user_distance(our_location, (act.x, act.y)).km)
+        key=lambda act: distance(our_location, (act.x, act.y)).km)
 
     return activities_sorted
 
