@@ -1,6 +1,6 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 from frontend import util
-from src.bot_core.bot import get_top_user_activity, get_finished_user_activities, get_top_by_activity
+from bot_core.bot import get_top_user_activity, get_finished_user_activities, get_top_by_activity
 
 def create_message(user):
     markup = InlineKeyboardMarkup()
