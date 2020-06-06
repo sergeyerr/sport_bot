@@ -1,7 +1,7 @@
 from geopy.distance import distance
 from data.user import User
 from data.activities import Activities
-from src.data.activity import Activity
+from data.activity import Activity
 from data.buddies import Buddies
 
 
@@ -24,16 +24,20 @@ def create_user(new_user):
     return new_user.save(force_insert=True)
 
 
+def user_distance(user_a, user_b):
+    return distance((user_a.x, user_a.y), (user_b.x, user_b.y)).km
 
-def create_activity(a:Activity):
-    # fields = [Activity.type, Activity.distance, Activity.date,
-    #           Activity.x, Activity.y]
-    # data = (new_activity.type, new_activity.distance,
-    #         new_activity.date, new_activity.x, new_activity.y)
-    # query = Activity.insert(data, fields=fields).execute()
-    # return query
-    tmp = Activity.create(name=a.name, x=a.x, y=a.y, date=a.date, distance=a.distance, estimated_time=a.estimated_time, type=a.type)
-    return tmp.save()
+
+def create_activity(a: Activity):
+    na = Activity.create(
+        name=a.name,
+        x=a.x, y=a.y,
+        date=a.date,
+        user_distance=a.distance,
+        estimated_time=a.estimated_time,
+        type=a.type)
+
+    return na.save()
 
 
 def buddies_by_user_id(user_id):
@@ -52,11 +56,11 @@ def suggest_activities(user_id, radius=30.0):
     our_buddy = User.get(User.id == user_id)
     our_location = (our_buddy.x, our_buddy.y)
     activities_filtered = list(filter(
-        lambda act: distance(our_location, (act.x, act.y)).km <= radius,
+        lambda act: user_distance(our_location, (act.x, act.y)).km <= radius,
         activities))
     activities_sorted = sorted(
         activities_filtered,
-        key=lambda act: distance(our_location, (act.x, act.y)).km)
+        key=lambda act: user_distance(our_location, (act.x, act.y)).km)
 
     return activities_sorted
 
@@ -80,11 +84,6 @@ def suggest_buddies(user_id, radius=30.0):
     return other_buddies_filtered
 
 
-#  для тестирования!! по факту надо учитывать user_id
-def get_all_activities():
-    return list(Activity.select())
-
-
 def activities_by_user(user_id):
     return list(
         Activity
@@ -102,6 +101,24 @@ def users_by_activity(activity_id):
         .join(Activity)
         .where(Activity.id == activity_id)
     )
+
+
+def bud(buddy_a, buddy_b_id):
+    Buddies.insert(buddy1=buddy_a, buddy2=buddy_b_id).execute()
+
+
+def unbud(buddy_a_id, buddy_b_id):
+    Buddies.delete().where(
+        (Buddies.buddy1 == buddy_a_id)
+        & (Buddies.buddy2 == buddy_b_id)
+    ).execute()
+
+
+def one_way_buddies(user_a_id, user_b_id):
+    return Buddies.select().where(
+        (Buddies.buddy1 == user_a_id)
+        & (Buddies.buddy2 == user_b_id)
+    ).exists()
 
 
 def participate_in_activity(user_id, activity_id):
