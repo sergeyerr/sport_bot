@@ -41,8 +41,18 @@ def create_activity(a: Activity):
     return na.save()
 
 
-def buddies_by_user_id(user_id):
-    return []
+def buddies_by_user_id(user_id:int) -> list:
+    """
+    возвращает друзей пользователя
+    :param user_id: int ID в телеграма
+    :return: list
+    """
+    Buddy = User.alias()
+    return list(User
+     .select()
+     .join(Buddies, on=(Buddies.buddy2 == User.id))
+     .join(Buddy, on=(Buddies.buddy1 == Buddy.id))
+     .where(Buddy.id == user_id))
 
 
 def suggest_activities(user_id, radius=30.0):

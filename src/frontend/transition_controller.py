@@ -120,7 +120,6 @@ def __buddies_button_pressed(call):
     buddies = bot.buddies_by_user_id(call.message.chat.id)
     if not send_buddies(call.message, buddies):
         alert_text = 'Список Ваших товарищей пуст'
-
     frontend.answer_callback_query(call.id, alert_text)
 
 
