@@ -27,6 +27,7 @@ def create_message(user):
     if len(top_list) == 0:
         top_list = 'Вы непревзойдённы в прокрастинации'
     else:
+        top_list = 'Вы непревзойдённы в прокрастинации'
         for i in range(len(top_list)):
             if top_list[i].username == user.username:
                 top_list = i + 1
